@@ -33,6 +33,13 @@ func CrearEntrega(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(entrega)
 }
 
+func ObtenerEntregas(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(storage.Entregas)
+}
+
 func ObtenerEntregaPorID(w http.ResponseWriter, r *http.Request) {
 
 	idParam := chi.URLParam(r, "id")

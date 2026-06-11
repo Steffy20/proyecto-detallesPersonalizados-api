@@ -10,7 +10,8 @@ import (
 	"proyecto-detallesPersonalizados-api/internal/models"
 	"proyecto-detallesPersonalizados-api/internal/storage"
 )
-//Crear función CrearRepartidor
+
+// Crear función CrearRepartidor
 func CrearRepartidor(w http.ResponseWriter, r *http.Request) {
 
 	var repartidor models.Repartidor
@@ -33,7 +34,8 @@ func CrearRepartidor(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(repartidor)
 }
-//crear obtener repartidores
+
+// crear obtener repartidores
 func ObtenerRepartidores(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
@@ -41,7 +43,7 @@ func ObtenerRepartidores(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(storage.Repartidores)
 }
 
-//Crear ObtenerRepartidorPorID
+// Crear ObtenerRepartidorPorID
 func ObtenerRepartidorPorID(w http.ResponseWriter, r *http.Request) {
 
 	idParam := chi.URLParam(r, "id")
@@ -67,7 +69,8 @@ func ObtenerRepartidorPorID(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Repartidor no encontrado", http.StatusNotFound)
 }
-//actualizar repartidor
+
+// actualizar repartidor
 func ActualizarRepartidor(w http.ResponseWriter, r *http.Request) {
 
 	idParam := chi.URLParam(r, "id")
@@ -106,7 +109,8 @@ func ActualizarRepartidor(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Repartidor no encontrado", http.StatusNotFound)
 }
-//crear eliminar repartidor
+
+// crear eliminar repartidor
 func EliminarRepartidor(w http.ResponseWriter, r *http.Request) {
 
 	idParam := chi.URLParam(r, "id")
@@ -133,3 +137,5 @@ func EliminarRepartidor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Error(w, "Repartidor no encontrado", http.StatusNotFound)
+
+}
