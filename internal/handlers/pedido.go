@@ -121,3 +121,34 @@ func ActualizarPedido(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Pedido no encontrado", http.StatusNotFound)
 }
 
+//DELETE
+//commit: implementar eliminacion de pedidos
+
+
+func EliminarPedido(w http.ResponseWriter, r *http.Request) {
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	for i, pedido := range storage.Pedidos {
+
+		if pedido.ID == id {
+
+			storage.Pedidos = append(storage.Pedidos[:i], storage.Pedidos[i+1:]...)
+
+			w.WriteHeader(http.StatusOK)
+
+			w.Write([]byte("Pedido eliminado"))
+
+			return
+		}
+	}
+
+	http.Error(w, "Pedido no encontrado", http.StatusNotFound)
+}
