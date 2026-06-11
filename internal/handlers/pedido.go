@@ -77,3 +77,47 @@ func ObtenerPedidoPorID(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Pedido no encontrado", http.StatusNotFound)
 }
+
+//UPDATE
+//commit:implementar actualizacion de pedidos
+
+
+func ActualizarPedido(w http.ResponseWriter, r *http.Request) {
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	var pedidoActualizado models.Pedido
+
+	err = json.NewDecoder(r.Body).Decode(&pedidoActualizado)
+
+	if err != nil {
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
+
+	for i, pedido := range storage.Pedidos {
+
+		if pedido.ID == id {
+
+			pedidoActualizado.ID = id
+
+			storage.Pedidos[i] = pedidoActualizado
+
+			w.Header().Set("Content-Type", "application/json")
+
+			json.NewEncoder(w).Encode(pedidoActualizado)
+
+			return
+		}
+	}
+
+	http.Error(w, "Pedido no encontrado", http.StatusNotFound)
+}
+
