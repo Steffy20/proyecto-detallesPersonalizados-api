@@ -39,3 +39,30 @@ func ObtenerRepartidores(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(storage.Repartidores)
 }
+
+//Crear ObtenerRepartidorPorID
+func ObtenerRepartidorPorID(w http.ResponseWriter, r *http.Request) {
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	for _, repartidor := range storage.Repartidores {
+
+		if repartidor.ID == id {
+
+			w.Header().Set("Content-Type", "application/json")
+
+			json.NewEncoder(w).Encode(repartidor)
+
+			return
+		}
+	}
+
+	http.Error(w, "Repartidor no encontrado", http.StatusNotFound)
+}
