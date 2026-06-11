@@ -1,10 +1,9 @@
 package models
 
 type Pedido struct {
-	ID 	    	int     `json:"id"`
-	Cliente  string  `json:"cliente"`
-	Producto string  `json:"producto"`
-	Mensaje string  `json:"mensaje"`
-	Estado  string  `json:"estado"`
+	ID       int    `json:"id"`
+	Cliente  string `json:"cliente"`
+	Producto string `json:"producto"`
+	Mensaje  string `json:"mensaje"`
+	Estado   string `json:"estado"`
 }
-
