@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"proyecto-detalles-api/internal/handlers"
+	"proyecto-detallesPersonalizados-api/internal/handlers"
 )
 
 //RUTAS CHI
