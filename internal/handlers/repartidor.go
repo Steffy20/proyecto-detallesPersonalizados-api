@@ -105,3 +105,31 @@ func ActualizarRepartidor(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Repartidor no encontrado", http.StatusNotFound)
 }
+//crear eliminar repartidor
+func EliminarRepartidor(w http.ResponseWriter, r *http.Request) {
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	for i, repartidor := range storage.Repartidores {
+
+		if repartidor.ID == id {
+
+			storage.Repartidores = append(storage.Repartidores[:i], storage.Repartidores[i+1:]...)
+
+			w.WriteHeader(http.StatusOK)
+
+			w.Write([]byte("Repartidor eliminado"))
+
+			return
+		}
+	}
+
+	http.Error(w, "Repartidor no encontrado", http.StatusNotFound)
+}
