@@ -66,3 +66,42 @@ func ObtenerRepartidorPorID(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Repartidor no encontrado", http.StatusNotFound)
 }
+//actualizar repartidor
+func ActualizarRepartidor(w http.ResponseWriter, r *http.Request) {
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	var repartidorActualizado models.Repartidor
+
+	err = json.NewDecoder(r.Body).Decode(&repartidorActualizado)
+
+	if err != nil {
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
+
+	for i, repartidor := range storage.Repartidores {
+
+		if repartidor.ID == id {
+
+			repartidorActualizado.ID = id
+
+			storage.Repartidores[i] = repartidorActualizado
+
+			w.Header().Set("Content-Type", "application/json")
+
+			json.NewEncoder(w).Encode(repartidorActualizado)
+
+			return
+		}
+	}
+
+	http.Error(w, "Repartidor no encontrado", http.StatusNotFound)
+}
