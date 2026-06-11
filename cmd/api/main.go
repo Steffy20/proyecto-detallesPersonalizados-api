@@ -4,24 +4,35 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"proyecto-detalles-api/internal/handlers"
+
+	"github.com/go-chi/chi/v5"
 )
 
-//RUTAS CHI
+// RUTAS CHI
 func main() {
 
 	r := chi.NewRouter()
 
-
 	//commit:CONFIGURAR RUTAS CHI PARA PEDIDOS
 	r.Route("/api/v1/pedidos", func(r chi.Router) {
-	r.Post("/", handlers.CrearPedido)
-	r.Get("/", handlers.ObtenerPedidos)
-	r.Get("/{id}", handlers.ObtenerPedidoPorID)
-	r.Put("/{id}", handlers.ActualizarPedido)
-	r.Delete("/{id}", handlers.EliminarPedido)
+		r.Post("/", handlers.CrearPedido)
+		r.Get("/", handlers.ObtenerPedidos)
+		r.Get("/{id}", handlers.ObtenerPedidoPorID)
+		r.Put("/{id}", handlers.ActualizarPedido)
+		r.Delete("/{id}", handlers.EliminarPedido)
 
+	})
+
+	//rutas para entregas
+	//commit:CONFIGURAR RUTAS CHI PARA ENTREGAS
+	r.Route("/api/v1/entregas", func(r chi.Router) {
+
+		r.Post("/", handlers.CrearEntrega)
+		r.Get("/", handlers.ObtenerEntregas)
+		r.Get("/{id}", handlers.ObtenerEntregaPorID)
+		r.Put("/{id}", handlers.ActualizarEntrega)
+		r.Delete("/{id}", handlers.EliminarEntrega)
 	})
 
 	fmt.Println("Servidor corriendo en puerto 8080")
