@@ -97,3 +97,31 @@ func ActualizarEntrega(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Entrega no encontrada", http.StatusNotFound)
 }
+
+func EliminarEntrega(w http.ResponseWriter, r *http.Request) {
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	for i, entrega := range storage.Entregas {
+
+		if entrega.ID == id {
+
+			storage.Entregas = append(storage.Entregas[:i], storage.Entregas[i+1:]...)
+
+			w.WriteHeader(http.StatusOK)
+
+			w.Write([]byte("Entrega eliminada"))
+
+			return
+		}
+	}
+
+	http.Error(w, "Entrega no encontrada", http.StatusNotFound)
+}
