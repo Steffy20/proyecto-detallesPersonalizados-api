@@ -33,3 +33,11 @@ storage.Pedidos = append(storage.Pedidos, pedido)
 
 	json.NewEncoder(w).Encode(pedido)
 }
+
+// GET todos los pedidos
+func ObtenerPedidos(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(storage.Pedidos)
+}
+
