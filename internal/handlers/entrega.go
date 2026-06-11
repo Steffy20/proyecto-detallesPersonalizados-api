@@ -3,9 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"proyecto-detalles-api/internal/models"
 	"proyecto-detalles-api/internal/storage"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func CrearEntrega(w http.ResponseWriter, r *http.Request) {
@@ -35,4 +38,30 @@ func ObtenerEntregas(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	json.NewEncoder(w).Encode(storage.Entregas)
+}
+
+func ObtenerEntregaPorID(w http.ResponseWriter, r *http.Request) {
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	for _, entrega := range storage.Entregas {
+
+		if entrega.ID == id {
+
+			w.Header().Set("Content-Type", "application/json")
+
+			json.NewEncoder(w).Encode(entrega)
+
+			return
+		}
+	}
+
+	http.Error(w, "Entrega no encontrada", http.StatusNotFound)
 }
