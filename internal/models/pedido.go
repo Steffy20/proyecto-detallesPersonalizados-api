@@ -1,5 +1,7 @@
 package models
 
+
+//commit: agregar atributos al modelo pedido
 type Pedido struct {
 	ID       int    `json:"id"`
 	Cliente  string `json:"cliente"`
@@ -7,3 +9,4 @@ type Pedido struct {
 	Mensaje  string `json:"mensaje"`
 	Estado   string `json:"estado"`
 }
+
