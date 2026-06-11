@@ -32,7 +32,7 @@ repartidor.ID = storage.RepartidorID
 
 	json.NewEncoder(w).Encode(repartidor)
 }
-
+//crear obtener repartidores
 func ObtenerRepartidores(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
