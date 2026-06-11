@@ -17,3 +17,8 @@ func CrearRepartidor(w http.ResponseWriter, r *http.Request) {
     var repartidor models.Repartidor
     json.NewDecoder(r.Body).Decode(&repartidor)
 }
+
+if err != nil {
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
