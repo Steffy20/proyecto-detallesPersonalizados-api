@@ -58,3 +58,42 @@ func ObtenerEntregaPorID(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Entrega no encontrada", http.StatusNotFound)
 }
+
+func ActualizarEntrega(w http.ResponseWriter, r *http.Request) {
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	var entregaActualizada models.Entrega
+
+	err = json.NewDecoder(r.Body).Decode(&entregaActualizada)
+
+	if err != nil {
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
+
+	for i, entrega := range storage.Entregas {
+
+		if entrega.ID == id {
+
+			entregaActualizada.ID = id
+
+			storage.Entregas[i] = entregaActualizada
+
+			w.Header().Set("Content-Type", "application/json")
+
+			json.NewEncoder(w).Encode(entregaActualizada)
+
+			return
+		}
+	}
+
+	http.Error(w, "Entrega no encontrada", http.StatusNotFound)
+}
