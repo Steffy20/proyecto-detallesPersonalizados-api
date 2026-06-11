@@ -18,7 +18,10 @@ func CrearRepartidor(w http.ResponseWriter, r *http.Request) {
     json.NewDecoder(r.Body).Decode(&repartidor)
 }
 
+//gAgregar validacion de datos al crear repartidor
 if err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
+repartidor.ID = storage.RepartidorID
+	storage.RepartidorID++
