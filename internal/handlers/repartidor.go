@@ -27,3 +27,15 @@ repartidor.ID = storage.RepartidorID
 	storage.RepartidorID++
 
 	storage.Repartidores = append(storage.Repartidores, repartidor)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+
+	json.NewEncoder(w).Encode(repartidor)
+}
+
+func ObtenerRepartidores(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(storage.Repartidores)
+}
