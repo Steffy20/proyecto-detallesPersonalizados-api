@@ -25,3 +25,5 @@ if err != nil {
 	}
 repartidor.ID = storage.RepartidorID
 	storage.RepartidorID++
+
+	storage.Repartidores = append(storage.Repartidores, repartidor)
