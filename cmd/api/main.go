@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"proyecto-detalles-api/internal/handlers"
+	"proyecto-detallesPersonalizados-api/internal/handlers"
 )
 
 //RUTAS CHI
@@ -14,7 +14,7 @@ func main() {
 	r := chi.NewRouter()
 
 
-	//commit:CONFIGURAR RUTAS CHI PARA PEDIDOS
+	//commit:CONFIGURAR RUTAS CHI Y SERVIDOR HTTP PARA PEDIDOS
 	r.Route("/api/v1/pedidos", func(r chi.Router) {
 	r.Post("/", handlers.CrearPedido)
 	r.Get("/", handlers.ObtenerPedidos)
