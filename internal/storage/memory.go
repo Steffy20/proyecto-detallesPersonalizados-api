@@ -7,3 +7,8 @@ import "proyecto-detallesPersonalizados-api/internal/models"
 var Pedidos = []models.Pedido{}
 var PedidoID = 1
 
+var Personalizaciones = []models.Personalizacion{}
+var PersonalizacionID = 1
+
+var ProductosPersonalizados = []models.ProductoPersonalizado{}
+var ProductoPersonalizadoID = 1
