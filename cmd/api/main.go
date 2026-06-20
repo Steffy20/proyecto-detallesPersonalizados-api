@@ -25,7 +25,18 @@ func main() {
 
 	})
 
-	
+	r.Route("/api/v1/personalizaciones", func(r chi.Router) {
+    
+
+		
+})
+
+r.Route("/api/v1/productos-personalizados", func(r chi.Router) {
+    
+
+
+
+})
 	fmt.Println("Servidor corriendo en puerto 8080")
 
 	http.ListenAndServe(":8080", r)
