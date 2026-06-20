@@ -24,9 +24,13 @@ func CrearPedido(w http.ResponseWriter, r *http.Request) {
 	}
 
 //agregar validaciones para pedidos
-	if pedido.Cliente == "" || pedido.Producto == "" {
-	http.Error(w, "Cliente y producto son obligatorios", http.StatusBadRequest)
+	if pedido.Mensaje == "" {
+	http.Error(w, "El mensaje personalizado es obligatorio", http.StatusBadRequest)
 	return
+}
+
+if pedido.Estado == "" {
+	pedido.Estado = "Pendiente"
 }
 
 //commit: almacenar pedidos en memoria
