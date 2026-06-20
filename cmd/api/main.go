@@ -25,17 +25,7 @@ func main() {
 
 	})
 
-	//commit:CONFIGURAR RUTAS CHI PARA ENTREGAS
-
-	r.Route("/api/v1/entregas", func(r chi.Router) {
-
-		r.Post("/", handlers.CrearEntrega)
-		r.Get("/", handlers.ObtenerEntregas)
-		r.Get("/{id}", handlers.ObtenerEntregaPorID)
-		r.Put("/{id}", handlers.ActualizarEntrega)
-		r.Delete("/{id}", handlers.EliminarEntrega)
-	})
-
+	
 	//commit:CONFIGURAR RUTAS CHI PARA REPARTIDORES
 	r.Route("/api/v1/repartidores", func(r chi.Router) {
 
