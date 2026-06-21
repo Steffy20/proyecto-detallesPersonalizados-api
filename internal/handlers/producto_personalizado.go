@@ -68,7 +68,7 @@ func CrearProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	
+
 	json.NewEncoder(w).Encode(p)
 }
 
@@ -104,32 +104,74 @@ func ActualizarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 
 	id, err := strconv.Atoi(idParam)
+
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	var p models.ProductoPersonalizado
+	var productoActualizado models.ProductoPersonalizado
 
-	err = json.NewDecoder(r.Body).Decode(&p)
+	err = json.NewDecoder(r.Body).Decode(&productoActualizado)
+
 	if err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	for i, item := range storage.ProductosPersonalizados {
+	//validaciones
+	if productoActualizado.PedidoID <= 0 {
+		http.Error(w, "PedidoID obligatorio", http.StatusBadRequest)
+		return
+	}
 
-		if item.ID == id {
+	if productoActualizado.Nombre == "" {
+		http.Error(w, "Nombre obligatorio", http.StatusBadRequest)
+		return
+	}
 
-			p.ID = id
-			storage.ProductosPersonalizados[i] = p
+	if productoActualizado.Cantidad <= 0 {
+		http.Error(w, "Cantidad inválida", http.StatusBadRequest)
+		return
+	}
 
-			json.NewEncoder(w).Encode(p)
+	if productoActualizado.Precio <= 0 {
+		http.Error(w, "Precio inválido", http.StatusBadRequest)
+		return
+	}
+
+	// Validar que el PedidoID exista
+	pedidoExiste := false
+
+	for _, pedido := range storage.Pedidos {
+		if pedido.ID == productoActualizado.PedidoID {
+			pedidoExiste = true
+			break
+		}
+	}
+
+	if !pedidoExiste {
+		http.Error(w, "El pedido asociado no existe", http.StatusBadRequest)
+		return
+	}
+
+	for i, producto := range storage.ProductosPersonalizados {
+
+		if producto.ID == id {
+
+			productoActualizado.ID = id
+
+			storage.ProductosPersonalizados[i] = productoActualizado
+
+			w.Header().Set("Content-Type", "application/json")
+
+			json.NewEncoder(w).Encode(productoActualizado)
+
 			return
 		}
 	}
 
-	http.Error(w, "No encontrado", http.StatusNotFound)
+	http.Error(w, "Producto personalizado no encontrado", http.StatusNotFound)
 }
 func EliminarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 

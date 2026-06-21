@@ -98,32 +98,66 @@ func ActualizarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 
 	id, err := strconv.Atoi(idParam)
+
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	var p models.Personalizacion
+	var personalizacionActualizada models.Personalizacion
 
-	err = json.NewDecoder(r.Body).Decode(&p)
+	err = json.NewDecoder(r.Body).Decode(&personalizacionActualizada)
+
 	if err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	for i, item := range storage.Personalizaciones {
+// VALIDACIONES
+	if personalizacionActualizada.PedidoID == 0 {
+		http.Error(w, "PedidoID es obligatorio", http.StatusBadRequest)
+		return
+	}
+if personalizacionActualizada.Mensaje == "" {
+		http.Error(w, "El mensaje es obligatorio", http.StatusBadRequest)
+		return
+	}
 
-		if item.ID == id {
+	if personalizacionActualizada.Color == "" {
+		http.Error(w, "El color es obligatorio", http.StatusBadRequest)
+		return
+	}	
+// Validar que el PedidoID exista
+	pedidoExiste := false
 
-			p.ID = id
-			storage.Personalizaciones[i] = p
+	for _, pedido := range storage.Pedidos {
+		if pedido.ID == personalizacionActualizada.PedidoID {
+			pedidoExiste = true
+			break
+		}
+	}
 
-			json.NewEncoder(w).Encode(p)
+	if !pedidoExiste {
+		http.Error(w, "El pedido asociado no existe", http.StatusBadRequest)
+		return
+	}
+
+	for i, p := range storage.Personalizaciones {
+
+		if p.ID == id {
+
+			personalizacionActualizada.ID = id
+			storage.Personalizaciones[i] = personalizacionActualizada
+
+
+			w.Header().Set("Content-Type", "application/json")
+
+			json.NewEncoder(w).Encode(personalizacionActualizada		)
 			return
 		}
 	}
 
-	http.Error(w, "No encontrado", http.StatusNotFound)
+	http.Error(w, "Personalización no encontrada", http.StatusNotFound)
 }
 
 func EliminarPersonalizacion(w http.ResponseWriter, r *http.Request) {
