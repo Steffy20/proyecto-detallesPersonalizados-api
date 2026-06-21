@@ -30,3 +30,15 @@ func CrearPersonalizacion(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(p)
 }
+
+func ObtenerPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	p, err := storage.ObtenerPersonalizacionPorID(id)
+	if err != nil {
+		http.Error(w, "No encontrado", http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(p)
+}
