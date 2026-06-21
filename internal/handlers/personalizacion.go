@@ -72,3 +72,15 @@ func ActualizarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 	p.ID = id
 	json.NewEncoder(w).Encode(p)
 }
+
+func EliminarPersonalizacion(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	err := storage.EliminarPersonalizacion(id)
+	if err != nil {
+		http.Error(w, "Error al eliminar", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
