@@ -69,3 +69,15 @@ func ActualizarProductoPersonalizacion(w http.ResponseWriter, r *http.Request) {
 	pp.ID = id
 	json.NewEncoder(w).Encode(pp)
 }
+
+func EliminarProductoPersonalizacion(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	err := storage.EliminarProductoPersonalizacion(id)
+	if err != nil {
+		http.Error(w, "Error al eliminar", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
