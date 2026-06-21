@@ -27,18 +27,18 @@ func main() {
 
 	r.Route("/api/v1/personalizaciones", func(r chi.Router) {
 		r.Post("/", handlers.CrearPersonalizacion)
-		r.Get("/", handlers.ListarPersonalizaciones)
+		r.Get("/", handlers.ObtenerPersonalizaciones)
 		r.Get("/{id}", handlers.ObtenerPersonalizacionPorID)
 		r.Put("/{id}", handlers.ActualizarPersonalizacion)
 		r.Delete("/{id}", handlers.EliminarPersonalizacion)
 })
 
 r.Route("/api/v1/productos-personalizados", func(r chi.Router) {
-	r.Post("/", handlers.AsignarPersonalizacionAProducto)
-	r.Get("/", handlers.ListarProductoPersonalizaciones)
-	r.Get("/{id}", handlers.ObtenerProductoPersonalizacionPorID)
-	r.Put("/{id}", handlers.ActualizarProductoPersonalizacion)
-	r.Delete("/{id}", handlers.EliminarProductoPersonalizacion)
+	r.Post("/", handlers.CrearProductoPersonalizado)
+	r.Get("/", handlers.ObtenerProductosPersonalizados)
+	r.Get("/{id}", handlers.ObtenerProductoPersonalizadoPorID)
+	r.Put("/{id}", handlers.ActualizarProductoPersonalizado)
+	r.Delete("/{id}", handlers.EliminarProductoPersonalizado)
 
 })
 	fmt.Println("Servidor corriendo en puerto 8080")

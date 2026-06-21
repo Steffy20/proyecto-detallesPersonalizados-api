@@ -113,14 +113,29 @@ func ActualizarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "No encontrado", http.StatusNotFound)
 }
-func EliminarProductoPersonalizacion(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+func EliminarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
-	err := storage.EliminarProductoPersonalizacion(id)
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		http.Error(w, "Error al eliminar", http.StatusInternalServerError)
+		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	for i, p := range storage.ProductosPersonalizados {
+
+		if p.ID == id {
+
+			storage.ProductosPersonalizados = append(
+				storage.ProductosPersonalizados[:i],
+				storage.ProductosPersonalizados[i+1:]...,
+			)
+
+			w.Write([]byte("Eliminado correctamente"))
+			return
+		}
+	}
+
+	http.Error(w, "No encontrado", http.StatusNotFound)
 }
