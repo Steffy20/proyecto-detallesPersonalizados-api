@@ -19,7 +19,7 @@ func CrearPersonalizacion(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
-if p.PedidoID <= 0 {
+	if p.PedidoID <= 0 {
 		http.Error(w, "PedidoID es obligatorio", http.StatusBadRequest)
 		return
 	}
@@ -43,7 +43,6 @@ if p.PedidoID <= 0 {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(p)
 }
-
 
 func ObtenerPersonalizaciones(w http.ResponseWriter, r *http.Request) {
 
@@ -71,9 +70,6 @@ func ObtenerPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "No encontrado", http.StatusNotFound)
 }
-
-
-
 
 func ActualizarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 
@@ -107,7 +103,6 @@ func ActualizarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "No encontrado", http.StatusNotFound)
 }
-
 
 func EliminarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 

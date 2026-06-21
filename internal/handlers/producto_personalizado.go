@@ -10,6 +10,7 @@ import (
 	"proyecto-detallesPersonalizados-api/internal/models"
 	"proyecto-detallesPersonalizados-api/internal/storage"
 )
+
 func CrearProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
 	var p models.ProductoPersonalizado
@@ -51,14 +52,11 @@ func CrearProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p)
 }
 
-
-
 func ObtenerProductosPersonalizados(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(storage.ProductosPersonalizados)
 }
-
 
 func ObtenerProductoPersonalizadoPorID(w http.ResponseWriter, r *http.Request) {
 
