@@ -73,35 +73,43 @@ func ObtenerPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func ListarPersonalizaciones(w http.ResponseWriter, r *http.Request) {
-	lista, err := storage.ListarPersonalizaciones()
-	if err != nil {
-		http.Error(w, "Error al listar", http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(lista)
-}
 
 
 func ActualizarPersonalizacion(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
 
 	var p models.Personalizacion
-	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
-		http.Error(w, "JSON inválido", http.StatusBadRequest)
-		return
-	}
 
-	err := storage.ActualizarPersonalizacion(id, p)
+	err = json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
-		http.Error(w, "Error al actualizar", http.StatusInternalServerError)
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	p.ID = id
-	json.NewEncoder(w).Encode(p)
+	for i, item := range storage.Personalizaciones {
+
+		if item.ID == id {
+
+			p.ID = id
+			storage.Personalizaciones[i] = p
+
+			json.NewEncoder(w).Encode(p)
+			return
+		}
+	}
+
+	http.Error(w, "No encontrado", http.StatusNotFound)
 }
+
+
+
 
 func EliminarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
