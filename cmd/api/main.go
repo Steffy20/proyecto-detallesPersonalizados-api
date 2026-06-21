@@ -26,9 +26,13 @@ func main() {
 	})
 
 	r.Route("/api/v1/personalizaciones", func(r chi.Router) {
-    
+		r.Post("/", handlers.CrearPersonalizacion)
+		r.Get("/", handlers.ListarPersonalizaciones)
+		r.Get("/{id}", handlers.ObtenerPersonalizacionPorID)
+		r.Put("/{id}", handlers.ActualizarPersonalizacion)
+		r.Delete("/{id}", handlers.EliminarPersonalizacion)
 
-		
+
 })
 
 r.Route("/api/v1/productos-personalizados", func(r chi.Router) {
