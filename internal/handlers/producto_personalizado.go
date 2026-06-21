@@ -41,3 +41,12 @@ func ObtenerProductoPersonalizacionPorID(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(data)
 }
 
+func ListarProductoPersonalizaciones(w http.ResponseWriter, r *http.Request) {
+	lista, err := storage.ListarProductoPersonalizaciones()
+	if err != nil {
+		http.Error(w, "Error al listar", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(lista)
+}
