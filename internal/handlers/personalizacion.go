@@ -14,33 +14,41 @@ import (
 func CrearPersonalizacion(w http.ResponseWriter, r *http.Request) {
 	var p models.Personalizacion
 
-	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
-		http.Error(w, "JSON inválido", http.StatusBadRequest)
-		return
-	}
-
-	id, err := storage.InsertarPersonalizacion(p)
+	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
-		http.Error(w, "Error al crear personalización", http.StatusInternalServerError)
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
+if p.PedidoID <= 0 {
+		http.Error(w, "PedidoID es obligatorio", http.StatusBadRequest)
 		return
 	}
 
-	p.ID = id
+	if p.Mensaje == "" {
+		http.Error(w, "El mensaje es obligatorio", http.StatusBadRequest)
+		return
+	}
+
+	if p.Color == "" {
+		http.Error(w, "El color es obligatorio", http.StatusBadRequest)
+		return
+	}
+
+	// guardar en memoria
+	p.ID = storage.PersonalizacionID
+	storage.PersonalizacionID++
+
+	storage.Personalizaciones = append(storage.Personalizaciones, p)
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(p)
 }
 
-func ObtenerPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 
-	p, err := storage.ObtenerPersonalizacionPorID(id)
-	if err != nil {
-		http.Error(w, "No encontrado", http.StatusNotFound)
-		return
-	}
+func ObtenerPersonalizaciones(w http.ResponseWriter, r *http.Request) {
 
-	json.NewEncoder(w).Encode(p)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(storage.Personalizaciones)
 }
 
 func ListarPersonalizaciones(w http.ResponseWriter, r *http.Request) {
