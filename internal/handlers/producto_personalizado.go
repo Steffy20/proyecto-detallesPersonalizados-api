@@ -53,17 +53,13 @@ func CrearProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
 
 
-func ObtenerProductoPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+func ObtenerProductosPersonalizados(w http.ResponseWriter, r *http.Request) {
 
-	data, err := storage.ObtenerProductoPersonalizacionPorID(id)
-	if err != nil {
-		http.Error(w, "No encontrado", http.StatusNotFound)
-		return
-	}
-
-	json.NewEncoder(w).Encode(data)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(storage.ProductosPersonalizados)
 }
+
+
 
 func ListarProductoPersonalizaciones(w http.ResponseWriter, r *http.Request) {
 	lista, err := storage.ListarProductoPersonalizaciones()
