@@ -109,16 +109,29 @@ func ActualizarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 }
 
 
-
-
 func EliminarPersonalizacion(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 
-	err := storage.EliminarPersonalizacion(id)
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		http.Error(w, "Error al eliminar", http.StatusInternalServerError)
+		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	for i, p := range storage.Personalizaciones {
+
+		if p.ID == id {
+
+			storage.Personalizaciones = append(
+				storage.Personalizaciones[:i],
+				storage.Personalizaciones[i+1:]...,
+			)
+
+			w.Write([]byte("Eliminado correctamente"))
+			return
+		}
+	}
+
+	http.Error(w, "No encontrado", http.StatusNotFound)
 }
