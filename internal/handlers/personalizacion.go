@@ -52,3 +52,23 @@ func ListarPersonalizaciones(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(lista)
 }
+
+
+func ActualizarPersonalizacion(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	var p models.Personalizacion
+	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+		http.Error(w, "JSON inválido", http.StatusBadRequest)
+		return
+	}
+
+	err := storage.ActualizarPersonalizacion(id, p)
+	if err != nil {
+		http.Error(w, "Error al actualizar", http.StatusInternalServerError)
+		return
+	}
+
+	p.ID = id
+	json.NewEncoder(w).Encode(p)
+}
