@@ -81,25 +81,38 @@ func ObtenerProductoPersonalizadoPorID(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "No encontrado", http.StatusNotFound)
 }
 
-func ActualizarProductoPersonalizacion(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+func ActualizarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
-	var pp models.ProductoPersonalizacion
-	if err := json.NewDecoder(r.Body).Decode(&pp); err != nil {
-		http.Error(w, "JSON inválido", http.StatusBadRequest)
-		return
-	}
+	idParam := chi.URLParam(r, "id")
 
-	err := storage.ActualizarProductoPersonalizacion(id, pp)
+	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		http.Error(w, "Error al actualizar", http.StatusInternalServerError)
+		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	pp.ID = id
-	json.NewEncoder(w).Encode(pp)
-}
+	var p models.ProductoPersonalizado
 
+	err = json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
+
+	for i, item := range storage.ProductosPersonalizados {
+
+		if item.ID == id {
+
+			p.ID = id
+			storage.ProductosPersonalizados[i] = p
+
+			json.NewEncoder(w).Encode(p)
+			return
+		}
+	}
+
+	http.Error(w, "No encontrado", http.StatusNotFound)
+}
 func EliminarProductoPersonalizacion(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 
