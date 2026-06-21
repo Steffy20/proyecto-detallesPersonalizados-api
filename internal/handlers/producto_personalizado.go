@@ -50,3 +50,22 @@ func ListarProductoPersonalizaciones(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(lista)
 }
+
+func ActualizarProductoPersonalizacion(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	var pp models.ProductoPersonalizacion
+	if err := json.NewDecoder(r.Body).Decode(&pp); err != nil {
+		http.Error(w, "JSON inválido", http.StatusBadRequest)
+		return
+	}
+
+	err := storage.ActualizarProductoPersonalizacion(id, pp)
+	if err != nil {
+		http.Error(w, "Error al actualizar", http.StatusInternalServerError)
+		return
+	}
+
+	pp.ID = id
+	json.NewEncoder(w).Encode(pp)
+}
