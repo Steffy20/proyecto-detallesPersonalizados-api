@@ -42,13 +42,33 @@ func CrearProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validar que el PedidoID exista
+	pedidoExiste := false
+
+	for _, pedido := range storage.Pedidos {
+		if pedido.ID == p.PedidoID {
+			pedidoExiste = true
+			break
+		}
+	}
+
+	if !pedidoExiste {
+		http.Error(w, "El pedido asociado no existe", http.StatusBadRequest)
+		return
+	}
+
 	// guardar en memoria
 	p.ID = storage.ProductoPersonalizadoID
 	storage.ProductoPersonalizadoID++
 
-	storage.ProductosPersonalizados = append(storage.ProductosPersonalizados, p)
+	storage.ProductosPersonalizados = append(
+		storage.ProductosPersonalizados,
+		 p,
+	)
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	
 	json.NewEncoder(w).Encode(p)
 }
 
