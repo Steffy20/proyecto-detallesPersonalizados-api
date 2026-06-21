@@ -28,3 +28,16 @@ func AsignarPersonalizacionAProducto(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(pp)
 }
+
+func ObtenerProductoPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+
+	data, err := storage.ObtenerProductoPersonalizacionPorID(id)
+	if err != nil {
+		http.Error(w, "No encontrado", http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(data)
+}
+
