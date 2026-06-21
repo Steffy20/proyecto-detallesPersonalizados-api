@@ -10,24 +10,48 @@ import (
 	"proyecto-detallesPersonalizados-api/internal/models"
 	"proyecto-detallesPersonalizados-api/internal/storage"
 )
+func CrearProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
-func AsignarPersonalizacionAProducto(w http.ResponseWriter, r *http.Request) {
-	var pp models.ProductoPersonalizacion
+	var p models.ProductoPersonalizado
 
-	if err := json.NewDecoder(r.Body).Decode(&pp); err != nil {
-		http.Error(w, "JSON inválido", http.StatusBadRequest)
-		return
-	}
-
-	err := storage.InsertarProductoPersonalizacion(pp)
+	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
-		http.Error(w, "Error al asignar", http.StatusInternalServerError)
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
+
+	// VALIDACIONES
+	if p.PedidoID <= 0 {
+		http.Error(w, "PedidoID obligatorio", http.StatusBadRequest)
+		return
+	}
+
+	if p.Nombre == "" {
+		http.Error(w, "Nombre obligatorio", http.StatusBadRequest)
+		return
+	}
+
+	if p.Cantidad <= 0 {
+		http.Error(w, "Cantidad inválida", http.StatusBadRequest)
+		return
+	}
+
+	if p.Precio <= 0 {
+		http.Error(w, "Precio inválido", http.StatusBadRequest)
+		return
+	}
+
+	// guardar en memoria
+	p.ID = storage.ProductoPersonalizadoID
+	storage.ProductoPersonalizadoID++
+
+	storage.ProductosPersonalizados = append(storage.ProductosPersonalizados, p)
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(pp)
+	json.NewEncoder(w).Encode(p)
 }
+
+
 
 func ObtenerProductoPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
