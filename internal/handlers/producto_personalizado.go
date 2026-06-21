@@ -60,15 +60,25 @@ func ObtenerProductosPersonalizados(w http.ResponseWriter, r *http.Request) {
 }
 
 
+func ObtenerProductoPersonalizadoPorID(w http.ResponseWriter, r *http.Request) {
 
-func ListarProductoPersonalizaciones(w http.ResponseWriter, r *http.Request) {
-	lista, err := storage.ListarProductoPersonalizaciones()
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		http.Error(w, "Error al listar", http.StatusInternalServerError)
+		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	json.NewEncoder(w).Encode(lista)
+	for _, p := range storage.ProductosPersonalizados {
+		if p.ID == id {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(p)
+			return
+		}
+	}
+
+	http.Error(w, "No encontrado", http.StatusNotFound)
 }
 
 func ActualizarProductoPersonalizacion(w http.ResponseWriter, r *http.Request) {
