@@ -51,6 +51,28 @@ func ObtenerPersonalizaciones(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(storage.Personalizaciones)
 }
 
+func ObtenerPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	for _, p := range storage.Personalizaciones {
+		if p.ID == id {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(p)
+			return
+		}
+	}
+
+	http.Error(w, "No encontrado", http.StatusNotFound)
+}
+
+
 func ListarPersonalizaciones(w http.ResponseWriter, r *http.Request) {
 	lista, err := storage.ListarPersonalizaciones()
 	if err != nil {
