@@ -44,3 +44,27 @@ func main() {
 
 	http.ListenAndServe(":8080", r)
 }
+
+r.Route("/api/v1/clientes", func(r chi.Router) {
+    r.Post("/", handlers.CrearCliente)
+    r.Get("/", handlers.ObtenerClientes)
+    r.Get("/{id}", handlers.ObtenerClientePorID)
+    r.Put("/{id}", handlers.ActualizarCliente)
+    r.Delete("/{id}", handlers.EliminarCliente)
+})
+
+r.Route("/api/v1/seguimientos", func(r chi.Router) {
+    r.Post("/", handlers.CrearSeguimientoPedido)
+    r.Get("/", handlers.ObtenerSeguimientosPedido)
+    r.Get("/{id}", handlers.ObtenerSeguimientoPedidoPorID)
+    r.Put("/{id}", handlers.ActualizarSeguimientoPedido)
+    r.Delete("/{id}", handlers.EliminarSeguimientoPedido)
+})
+
+r.Route("/api/v1/reclamos", func(r chi.Router) {
+    r.Post("/", handlers.CrearReclamo)
+    r.Get("/", handlers.ObtenerReclamos)
+    r.Get("/{id}", handlers.ObtenerReclamoPorID)
+    r.Put("/{id}", handlers.ActualizarReclamo)
+    r.Delete("/{id}", handlers.EliminarReclamo)
+})
