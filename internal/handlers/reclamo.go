@@ -83,3 +83,44 @@ func ObtenerReclamoPorID(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "Reclamo no encontrado", http.StatusNotFound)
 }
+//actualizar reclamo
+func ActualizarReclamo(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	var reclamoActualizado models.Reclamo
+	err = json.NewDecoder(r.Body).Decode(&reclamoActualizado)
+	if err != nil {
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
+	if reclamoActualizado.ClienteID <= 0 {
+		http.Error(w, "ClienteID obligatorio", http.StatusBadRequest)
+		return
+	}
+	if reclamoActualizado.PedidoID <= 0 {
+		http.Error(w, "PedidoID obligatorio", http.StatusBadRequest)
+		return
+	}
+	if reclamoActualizado.Descripcion == "" {
+		http.Error(w, "Descripción obligatoria", http.StatusBadRequest)
+		return
+	}
+	if reclamoActualizado.Estado == "" {
+		http.Error(w, "Estado obligatorio", http.StatusBadRequest)
+		return
+	}
+	for i, reclamo := range storage.Reclamos {
+		if reclamo.ID == id {
+			reclamoActualizado.ID = id
+			storage.Reclamos[i] = reclamoActualizado
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(reclamoActualizado)
+			return
+		}
+	}
+	http.Error(w, "Reclamo no encontrado", http.StatusNotFound)
+}
