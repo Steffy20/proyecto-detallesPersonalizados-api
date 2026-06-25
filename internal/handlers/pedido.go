@@ -9,9 +9,10 @@ import (
 
 	"proyecto-detallesPersonalizados-api/internal/models"
 	"proyecto-detallesPersonalizados-api/internal/storage"
+	"proyecto-detallesPersonalizados-api/internal/service"
 )
+	var pedidoService = service.NewPedidoService()
 
-//commit: implementar endpoint crear pedido
 func CrearPedido(w http.ResponseWriter, r *http.Request) {
 
 	var pedido models.Pedido
@@ -23,38 +24,30 @@ func CrearPedido(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-//agregar validaciones para pedidos
-	if pedido.Mensaje == "" {
-	http.Error(w, "El mensaje personalizado es obligatorio", http.StatusBadRequest)
-	return
-}
+	err = pedidoService.ValidarPedido(&pedido)
 
-if pedido.Estado == "" {
-	pedido.Estado = "Pendiente"
-}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-//commit: almacenar pedidos en memoria
-pedido.ID = storage.PedidoID
-storage.PedidoID++
+	pedido.ID = storage.PedidoID
+	storage.PedidoID++
 
-storage.Pedidos = append(storage.Pedidos, pedido)
-
+	storage.Pedidos = append(storage.Pedidos, pedido)
 
 	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(pedido)
 }
 
-// GET todos los pedidos
-//commit: implementar listado de pedidos
+
 func ObtenerPedidos(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(storage.Pedidos)
 }
 
-//GET POR ID
-//commit: implementar busqueda de pedido por id
 
 func ObtenerPedidoPorID(w http.ResponseWriter, r *http.Request) {
 
@@ -81,9 +74,6 @@ func ObtenerPedidoPorID(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Pedido no encontrado", http.StatusNotFound)
 }
-
-//UPDATE
-//commit:implementar actualizacion de pedidos
 
 
 func ActualizarPedido(w http.ResponseWriter, r *http.Request) {
@@ -124,10 +114,6 @@ func ActualizarPedido(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Pedido no encontrado", http.StatusNotFound)
 }
-
-//DELETE
-//commit: implementar eliminacion de pedidos
-
 
 func EliminarPedido(w http.ResponseWriter, r *http.Request) {
 

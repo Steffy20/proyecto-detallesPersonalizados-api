@@ -9,7 +9,10 @@ import (
 
 	"proyecto-detallesPersonalizados-api/internal/models"
 	"proyecto-detallesPersonalizados-api/internal/storage"
+	"proyecto-detallesPersonalizados-api/internal/service"
 )
+
+var personalizacionService = service.NewPersonalizacionService()
 
 func CrearPersonalizacion(w http.ResponseWriter, r *http.Request) {
 	var personalizacion models.Personalizacion
@@ -22,19 +25,14 @@ func CrearPersonalizacion(w http.ResponseWriter, r *http.Request) {
 	}
 
 // VALIDACIONES
-	if personalizacion.PedidoID == 0 {
-		http.Error(w, "PedidoID es obligatorio", http.StatusBadRequest)
-		return
-	}
-if personalizacion.Mensaje == "" {
-		http.Error(w, "El mensaje es obligatorio", http.StatusBadRequest)
-		return
-	}
+	err = personalizacionService.ValidarPersonalizacion(
+	&personalizacion,
+)
 
-	if personalizacion.Color == "" {
-		http.Error(w, "El color es obligatorio", http.StatusBadRequest)
-		return
-	}
+if err != nil {
+	http.Error(w, err.Error(), http.StatusBadRequest)
+	return
+}
 
 // Validar que el PedidoID exista
 	pedidoExiste := false

@@ -9,7 +9,10 @@ import (
 
 	"proyecto-detallesPersonalizados-api/internal/models"
 	"proyecto-detallesPersonalizados-api/internal/storage"
+	"proyecto-detallesPersonalizados-api/internal/service"
 )
+
+var productoPersonalizadoService = service.NewProductoPersonalizadoService()
 
 func CrearProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
@@ -21,26 +24,13 @@ func CrearProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// VALIDACIONES
-	if p.PedidoID <= 0 {
-		http.Error(w, "PedidoID obligatorio", http.StatusBadRequest)
-		return
-	}
+	// VALIDACIONES 
+	err = productoPersonalizadoService.ValidarProductoPersonalizado(&p)
 
-	if p.Nombre == "" {
-		http.Error(w, "Nombre obligatorio", http.StatusBadRequest)
-		return
-	}
-
-	if p.Cantidad <= 0 {
-		http.Error(w, "Cantidad inválida", http.StatusBadRequest)
-		return
-	}
-
-	if p.Precio <= 0 {
-		http.Error(w, "Precio inválido", http.StatusBadRequest)
-		return
-	}
+if err != nil {
+	http.Error(w, err.Error(), http.StatusBadRequest)
+	return
+}
 
 	// Validar que el PedidoID exista
 	pedidoExiste := false
