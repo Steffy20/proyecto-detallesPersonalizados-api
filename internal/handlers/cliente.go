@@ -36,3 +36,20 @@ func ObtenerClientes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(storage.Clientes)
 }
+
+//obtener cliente por Id
+func ObtenerClientePorID(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	for _, cliente := range storage.Clientes {
+		if cliente.ID == id {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(cliente)
+			return
+		}
+	}
+	http.Error(w, "Cliente no encontrado", http.StatusNotFound)
+}
