@@ -11,3 +11,13 @@ var PersonalizacionID = 1
 
 var ProductosPersonalizados = []models.ProductoPersonalizado{}
 var ProductoPersonalizadoID = 1
+
+//modulo de clientes
+var Clientes = []models.Cliente{}
+var ClienteID = 1
+
+var SeguimientosPedido = []models.SeguimientoPedido{}
+var SeguimientoPedidoID = 1
+
+var Reclamos = []models.Reclamo{}
+var ReclamoID = 1
