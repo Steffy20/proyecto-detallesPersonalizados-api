@@ -53,3 +53,36 @@ func ObtenerClientePorID(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "Cliente no encontrado", http.StatusNotFound)
 }
+
+//actualizar cliente 
+func ActualizarCliente(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	var clienteActualizado models.Cliente
+	err = json.NewDecoder(r.Body).Decode(&clienteActualizado)
+	if err != nil {
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
+	if clienteActualizado.Nombre == "" {
+		http.Error(w, "Nombre obligatorio", http.StatusBadRequest)
+		return
+	}
+	if clienteActualizado.Telefono == "" {
+		http.Error(w, "Teléfono obligatorio", http.StatusBadRequest)
+		return
+	}
+	for i, cliente := range storage.Clientes {
+		if cliente.ID == id {
+			clienteActualizado.ID = id
+			storage.Clientes[i] = clienteActualizado
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(clienteActualizado)
+			return
+		}
+	}
+	http.Error(w, "Cliente no encontrado", http.StatusNotFound)
+}
