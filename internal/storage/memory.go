@@ -21,3 +21,12 @@ var SeguimientoPedidoID = 1
 
 var Reclamos = []models.Reclamo{}
 var ReclamoID = 1
+
+var SolicitudesUrgentes = []models.SolicitudUrgente{}
+var SolicitudUrgenteID = 1
+
+var AgendasProduccion = []models.AgendaProduccion{}
+var AgendaProduccionID = 1
+
+var SlotsProduccion = []models.SlotProduccion{}
+var SlotProduccionID = 1
