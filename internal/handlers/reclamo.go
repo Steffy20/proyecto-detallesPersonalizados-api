@@ -67,3 +67,19 @@ func ObtenerReclamos(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(storage.Reclamos)
 }
+func ObtenerReclamoPorID(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	for _, reclamo := range storage.Reclamos {
+		if reclamo.ID == id {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(reclamo)
+			return
+		}
+	}
+	http.Error(w, "Reclamo no encontrado", http.StatusNotFound)
+}
