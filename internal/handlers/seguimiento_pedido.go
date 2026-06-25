@@ -120,3 +120,25 @@ func ActualizarSeguimientoPedido(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "Seguimiento no encontrado", http.StatusNotFound)
 }
+
+//eliminar seguimiento de pedido
+	func EliminarSeguimientoPedido(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	for i, seguimiento := range storage.SeguimientosPedido {
+		if seguimiento.ID == id {
+			storage.SeguimientosPedido = append(
+				storage.SeguimientosPedido[:i],
+				storage.SeguimientosPedido[i+1:]...,
+			)
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Seguimiento eliminado"))
+			return
+		}
+	}
+	http.Error(w, "Seguimiento no encontrado", http.StatusNotFound)
+}
