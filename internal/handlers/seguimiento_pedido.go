@@ -55,3 +55,20 @@ func ObtenerSeguimientosPedido(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(storage.SeguimientosPedido)
 }
+
+func ObtenerSeguimientoPedidoPorID(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	for _, seguimiento := range storage.SeguimientosPedido {
+		if seguimiento.ID == id {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(seguimiento)
+			return
+		}
+	}
+	http.Error(w, "Seguimiento no encontrado", http.StatusNotFound)
+}
