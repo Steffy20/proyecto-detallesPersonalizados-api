@@ -86,3 +86,24 @@ func ActualizarCliente(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "Cliente no encontrado", http.StatusNotFound)
 }
+
+//eliminar cliente 
+func EliminarCliente(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	for i, cliente := range storage.Clientes {
+		if cliente.ID == id {
+			storage.Clientes = append(
+				storage.Clientes[:i],
+				storage.Clientes[i+1:]...,
+			)
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Cliente eliminado"))
+			return
+		}
+	}
+	http.Error(w, "Cliente no encontrado", http.StatusNotFound)
+}
