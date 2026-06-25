@@ -124,3 +124,24 @@ func ActualizarReclamo(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "Reclamo no encontrado", http.StatusNotFound)
 }
+
+func EliminarReclamo(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	for i, reclamo := range storage.Reclamos {
+		if reclamo.ID == id {
+			storage.Reclamos = append(
+				storage.Reclamos[:i],
+				storage.Reclamos[i+1:]...,
+			)
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Reclamo eliminado"))
+			return
+		}
+	}
+	http.Error(w, "Reclamo no encontrado", http.StatusNotFound)
+}
