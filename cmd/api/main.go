@@ -7,12 +7,23 @@ import (
 	"proyecto-detallesPersonalizados-api/internal/handlers"
 
 	"github.com/go-chi/chi/v5"
+
+	 "github.com/go-chi/chi/v5/middleware"
+
+    middlewareAPI "proyecto-detallesPersonalizados-api/internal/middleware"
+
 )
 
 // RUTAS CHI
 func main() {
 
 	r := chi.NewRouter()
+
+
+r.Use(middleware.Logger)
+r.Use(middlewareAPI.CORS)
+
+
 
 	//commit:CONFIGURAR RUTAS CHI Y SERVIDOR HTTP PARA PEDIDOS
 	r.Route("/api/v1/pedidos", func(r chi.Router) {

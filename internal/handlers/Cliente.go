@@ -42,6 +42,10 @@ func CrearCliente(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(cliente)
 }
 
+func ObtenerClientes(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(storage.Clientes)
+}
 
 func ObtenerClientePorID(w http.ResponseWriter, r *http.Request) {
 
@@ -51,7 +55,7 @@ func ObtenerClientePorID(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
-	
+
 
 	for _, cliente := range storage.Clientes {
 
