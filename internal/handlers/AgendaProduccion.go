@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"proyecto-detallesPersonalizados-api/internal/models"
 	"proyecto-detallesPersonalizados-api/internal/storage"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func CrearAgendaProduccion(w http.ResponseWriter, r *http.Request) {
@@ -41,4 +44,20 @@ func CrearAgendaProduccion(w http.ResponseWriter, r *http.Request) {
 func ObtenerAgendasProduccion(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(storage.AgendasProduccion)
+}
+func ObtenerAgendaProduccionPorID(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	for _, agenda := range storage.AgendasProduccion {
+		if agenda.ID == id {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(agenda)
+			return
+		}
+	}
+	http.Error(w, "Agenda de producción no encontrada", http.StatusNotFound)
 }
