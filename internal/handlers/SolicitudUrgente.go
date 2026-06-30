@@ -65,3 +65,17 @@ func ObtenerSolicitudUrgentePorID(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "Solicitud urgente no encontrada", http.StatusNotFound)
 }
+func ActualizarSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	var solicitudActualizada models.SolicitudUrgente
+	err = json.NewDecoder(r.Body).Decode(&solicitudActualizada)
+	if err != nil {
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
+}
