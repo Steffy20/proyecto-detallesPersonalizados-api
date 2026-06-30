@@ -85,3 +85,10 @@ r.Route("/api/v1/reclamos", func(r chi.Router) {
         r.Put("/{id}", handlers.ActualizarAgendaProduccion) 
         r.Delete("/{id}", handlers.EliminarAgendaProduccion) 
     })
+	r.Route("/api/v1/slots-produccion", func(r chi.Router) { 
+        r.Post("/", handlers.CrearSlotProduccion) 
+        r.Get("/", handlers.ObtenerSlotsProduccion) 
+        r.Get("/{id}", handlers.ObtenerSlotProduccionPorID) 
+        r.Put("/{id}", handlers.ActualizarSlotProduccion) 
+        r.Delete("/{id}", handlers.EliminarSlotProduccion) 
+    }) 
