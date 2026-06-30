@@ -102,3 +102,30 @@ return
 } 
 } 
 http.Error(w, "Solicitud urgente no encontrada", http.StatusNotFound) 
+func EliminarSolicitudUrgente(w http.ResponseWriter, r *http.Request) { 
+idParam := chi.URLParam(r, "id") 
+id, err := strconv.Atoi(idParam) 
+if err != nil { 
+  http.Error(w, "ID inválido", http.StatusBadRequest) 
+  return 
+ } 
+ 
+ for i, solicitud := range storage.SolicitudesUrgentes { 
+ 
+  if solicitud.ID == id { 
+ 
+   storage.SolicitudesUrgentes = append( 
+    storage.SolicitudesUrgentes[:i], 
+    storage.SolicitudesUrgentes[i+1:]..., 
+   ) 
+ 
+   w.WriteHeader(http.StatusOK) 
+ 
+   w.Write([]byte("Solicitud urgente eliminada")) 
+ 
+   return 
+  } 
+ } 
+ 
+ http.Error(w, "Solicitud urgente no encontrada", http.StatusNotFound) 
+}
