@@ -108,3 +108,32 @@ func ActualizarAgendaProduccion(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Agenda de producción no encontrada", http.StatusNotFound)
 }
+func EliminarAgendaProduccion(w http.ResponseWriter, r *http.Request) {
+
+	idParam := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	for i, agenda := range storage.AgendasProduccion {
+
+		if agenda.ID == id {
+
+			storage.AgendasProduccion = append(
+				storage.AgendasProduccion[:i],
+				storage.AgendasProduccion[i+1:]...,
+			)
+
+			w.WriteHeader(http.StatusOK)
+
+			w.Write([]byte("Agenda de producción eliminada"))
+
+			return
+		}
+	}
+	http.Error(w, "Agenda de producción no encontrada", http.StatusNotFound)
+}
