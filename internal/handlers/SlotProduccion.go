@@ -62,29 +62,53 @@ func ObtenerSlotProduccionPorID(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "Slot de producción no encontrado", http.StatusNotFound)
 }
-func ActualizarSlotProduccion(w http.ResponseWriter, r *http.Request) { 
-idParam := chi.URLParam(r, "id") 
-id, err := strconv.Atoi(idParam) 
-if err != nil { 
-http.Error(w, "ID inválido", http.StatusBadRequest) 
-return 
-} 
-var slotActualizado models.SlotProduccion 
-err = json.NewDecoder(r.Body).Decode(&slotActualizado) 
-if err != nil { 
-http.Error(w, "Datos inválidos", http.StatusBadRequest) 
-return 
-} 
-// VALIDACIONES 
-if slotActualizado.AgendaID <= 0 { 
-http.Error(w, "AgendaID obligatorio", http.StatusBadRequest) 
-return 
-} 
-if slotActualizado.CapacidadMaxima <= 0 { 
-http.Error(w, "Capacidad máxima inválida", http.StatusBadRequest) 
-return 
-} 
-if slotActualizado.PedidosAsignados < 0 { 
-http.Error(w, "Pedidos asignados inválidos", http.StatusBadRequest) 
-return 
-} 
+func ActualizarSlotProduccion(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	var slotActualizado models.SlotProduccion
+	err = json.NewDecoder(r.Body).Decode(&slotActualizado)
+	if err != nil {
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
+	// VALIDACIONES
+	if slotActualizado.AgendaID <= 0 {
+		http.Error(w, "AgendaID obligatorio", http.StatusBadRequest)
+		return
+	}
+	if slotActualizado.CapacidadMaxima <= 0 {
+		http.Error(w, "Capacidad máxima inválida", http.StatusBadRequest)
+		return
+	}
+	if slotActualizado.PedidosAsignados < 0 {
+		http.Error(w, "Pedidos asignados inválidos", http.StatusBadRequest)
+		return
+	}
+	// Validar que la agenda exista
+	agendaExiste := false
+	for _, agenda := range storage.AgendasProduccion {
+		if agenda.ID == slotActualizado.AgendaID {
+			agendaExiste = true
+			break
+		}
+	}
+	if !agendaExiste {
+		http.Error(w, "La agenda asociada no existe",
+			http.StatusBadRequest)
+		return
+	}
+	for i, slot := range storage.SlotsProduccion {
+		if slot.ID == id {
+			slotActualizado.ID = id
+			storage.SlotsProduccion[i] = slotActualizado
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(slotActualizado)
+			return
+		}
+	}
+	http.Error(w, "Slot de producción no encontrado", http.StatusNotFound)
+}
