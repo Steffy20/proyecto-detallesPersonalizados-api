@@ -61,3 +61,16 @@ func ObtenerAgendaProduccionPorID(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "Agenda de producción no encontrada", http.StatusNotFound)
 }
+func ActualizarAgendaProduccion(w http.ResponseWriter, r *http.Request) { 
+idParam := chi.URLParam(r, "id") 
+id, err := strconv.Atoi(idParam) 
+if err != nil { 
+http.Error(w, "ID inválido", http.StatusBadRequest) 
+return 
+} 
+var agendaActualizada models.AgendaProduccion 
+err = json.NewDecoder(r.Body).Decode(&agendaActualizada) 
+if err != nil { 
+http.Error(w, "Datos inválidos", http.StatusBadRequest) 
+return 
+} 
