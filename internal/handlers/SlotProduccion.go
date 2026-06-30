@@ -112,3 +112,28 @@ func ActualizarSlotProduccion(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "Slot de producción no encontrado", http.StatusNotFound)
 }
+func EliminarSlotProduccion(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	for i, slot := range storage.SlotsProduccion {
+		if slot.ID == id {
+
+			storage.SlotsProduccion = append(
+				storage.SlotsProduccion[:i],
+				storage.SlotsProduccion[i+1:]...,
+			)
+
+			w.WriteHeader(http.StatusOK)
+
+			w.Write([]byte("Slot de producción eliminado"))
+
+			return
+		}
+	}
+
+	http.Error(w, "Slot de producción no encontrado", http.StatusNotFound)
+}
