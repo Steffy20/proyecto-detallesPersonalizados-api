@@ -14,3 +14,17 @@ if err != nil {
 http.Error(w, "Datos inválidos", http.StatusBadRequest) 
   return 
  } 
+ // Validar que la agenda exista 
+ agendaExiste := false 
+ 
+ for _, agenda := range storage.AgendasProduccion { 
+  if agenda.ID == slot.AgendaID { 
+   agendaExiste = true 
+   break 
+  } 
+ } 
+if !agendaExiste { 
+http.Error(w, "La agenda asociada no existe", 
+http.StatusBadRequest) 
+return 
+} 
