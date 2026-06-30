@@ -68,3 +68,14 @@ r.Route("/api/v1/reclamos", func(r chi.Router) {
     r.Put("/{id}", handlers.ActualizarReclamo)
     r.Delete("/{id}", handlers.EliminarReclamo)
 })
+
+//rutasde solicitud urgente 
+    r.Route("/api/v1/solicitudes-urgentes", func(r chi.Router) { 
+        r.Post("/", handlers.CrearSolicitudUrgente) 
+        r.Get("/", handlers.ObtenerSolicitudesUrgentes) 
+        r.Get("/{id}", handlers.ObtenerSolicitudUrgentePorID) 
+        r.Put("/{id}", handlers.ActualizarSolicitudUrgente) 
+        r.Delete("/{id}", handlers.EliminarSolicitudUrgente) 
+    }) 
+ 
+  
