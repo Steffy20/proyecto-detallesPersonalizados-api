@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"proyecto-detallesPersonalizados-api/internal/models"
 	"proyecto-detallesPersonalizados-api/internal/storage"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func CrearSlotProduccion(w http.ResponseWriter, r *http.Request) {
@@ -42,4 +45,20 @@ func CrearSlotProduccion(w http.ResponseWriter, r *http.Request) {
 func ObtenerSlotsProduccion(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(storage.SlotsProduccion)
+}
+func ObtenerSlotProduccionPorID(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	for _, slot := range storage.SlotsProduccion {
+		if slot.ID == id {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(slot)
+			return
+		}
+	}
+	http.Error(w, "Slot de producción no encontrado", http.StatusNotFound)
 }
