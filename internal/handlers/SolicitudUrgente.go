@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"proyecto-detallesPersonalizados-api/internal/models"
+	"proyecto-detallesPersonalizados-api/internal/storage"
 )
 
 func CrearSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
@@ -31,5 +32,13 @@ func CrearSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// guardar en memoria
-
+	solicitud.ID = storage.SolicitudUrgenteID
+	storage.SolicitudUrgenteID++
+	storage.SolicitudesUrgentes = append(
+		storage.SolicitudesUrgentes,
+		solicitud,
+	)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(solicitud)
 }
