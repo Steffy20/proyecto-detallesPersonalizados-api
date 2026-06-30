@@ -39,3 +39,7 @@ func CrearSlotProduccion(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(slot)
 }
+func ObtenerSlotsProduccion(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(storage.SlotsProduccion)
+}
