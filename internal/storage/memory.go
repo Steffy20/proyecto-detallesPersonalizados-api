@@ -22,10 +22,19 @@ var SeguimientoPedidoID = 1
 var Reclamos = []models.Reclamo{}
 var ReclamoID = 1
 
+<<<<<<< HEAD
 //modulo de solicitud urgente
 var SolicitudesUrgentes = []models.SolicitudUrgente{}
 var SolicitudUrgenteID = 1
 var AgendasProduccion = []models.AgendaProduccion{}
 var AgendaProduccionID = 1
+=======
+var SolicitudesUrgentes = []models.SolicitudUrgente{}
+var SolicitudUrgenteID = 1
+
+var AgendasProduccion = []models.AgendaProduccion{}
+var AgendaProduccionID = 1
+
+>>>>>>> 38f5b01a7af5fa84b7b86cf0cb46324446b95096
 var SlotsProduccion = []models.SlotProduccion{}
 var SlotProduccionID = 1

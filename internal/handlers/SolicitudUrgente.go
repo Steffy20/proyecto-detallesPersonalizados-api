@@ -29,4 +29,7 @@ func CrearSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
 	if solicitud.Estado == "" {
 		solicitud.Estado = "Pendiente"
 	}
+
+	// guardar en memoria
+
 }
