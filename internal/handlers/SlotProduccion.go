@@ -75,3 +75,16 @@ if err != nil {
 http.Error(w, "Datos inválidos", http.StatusBadRequest) 
 return 
 } 
+// VALIDACIONES 
+if slotActualizado.AgendaID <= 0 { 
+http.Error(w, "AgendaID obligatorio", http.StatusBadRequest) 
+return 
+} 
+if slotActualizado.CapacidadMaxima <= 0 { 
+http.Error(w, "Capacidad máxima inválida", http.StatusBadRequest) 
+return 
+} 
+if slotActualizado.PedidosAsignados < 0 { 
+http.Error(w, "Pedidos asignados inválidos", http.StatusBadRequest) 
+return 
+} 
