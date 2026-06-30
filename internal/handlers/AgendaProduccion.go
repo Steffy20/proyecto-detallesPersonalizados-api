@@ -61,16 +61,50 @@ func ObtenerAgendaProduccionPorID(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "Agenda de producción no encontrada", http.StatusNotFound)
 }
-func ActualizarAgendaProduccion(w http.ResponseWriter, r *http.Request) { 
-idParam := chi.URLParam(r, "id") 
-id, err := strconv.Atoi(idParam) 
-if err != nil { 
-http.Error(w, "ID inválido", http.StatusBadRequest) 
-return 
-} 
-var agendaActualizada models.AgendaProduccion 
-err = json.NewDecoder(r.Body).Decode(&agendaActualizada) 
-if err != nil { 
-http.Error(w, "Datos inválidos", http.StatusBadRequest) 
-return 
-} 
+func ActualizarAgendaProduccion(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	var agendaActualizada models.AgendaProduccion
+	err = json.NewDecoder(r.Body).Decode(&agendaActualizada)
+	if err != nil {
+		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+		return
+	}
+	// VALIDACIONES
+	if agendaActualizada.Fecha == "" {
+		http.Error(w, "La fecha es obligatoria", http.StatusBadRequest)
+		return
+	}
+
+	if agendaActualizada.Responsable == "" {
+		http.Error(w, "El responsable es obligatorio", http.StatusBadRequest)
+		return
+	}
+
+	if agendaActualizada.Estado == "" {
+		http.Error(w, "El estado es obligatorio", http.StatusBadRequest)
+		return
+	}
+
+	for i, agenda := range storage.AgendasProduccion {
+
+		if agenda.ID == id {
+
+			agendaActualizada.ID = id
+
+			storage.AgendasProduccion[i] = agendaActualizada
+
+			w.Header().Set("Content-Type", "application/json")
+
+			json.NewEncoder(w).Encode(agendaActualizada)
+
+			return
+		}
+	}
+
+	http.Error(w, "Agenda de producción no encontrada", http.StatusNotFound)
+}
