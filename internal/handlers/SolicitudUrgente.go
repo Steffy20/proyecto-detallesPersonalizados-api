@@ -79,3 +79,26 @@ func ActualizarSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+// VALIDACIONES 
+if solicitudActualizada.Cliente == "" { 
+http.Error(w, "Cliente obligatorio", http.StatusBadRequest) 
+return 
+} 
+if solicitudActualizada.Descripcion == "" { 
+http.Error(w, "Descripción obligatoria", http.StatusBadRequest) 
+return 
+} 
+if solicitudActualizada.FechaRequerida == "" { 
+http.Error(w, "Fecha requerida obligatoria", http.StatusBadRequest) 
+return 
+} 
+for i, solicitud := range storage.SolicitudesUrgentes { 
+if solicitud.ID == id { 
+solicitudActualizada.ID = id 
+storage.SolicitudesUrgentes[i] = solicitudActualizada 
+w.Header().Set("Content-Type", "application/json") 
+json.NewEncoder(w).Encode(solicitudActualizada) 
+return 
+} 
+} 
+http.Error(w, "Solicitud urgente no encontrada", http.StatusNotFound) 
