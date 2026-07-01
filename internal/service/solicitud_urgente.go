@@ -4,33 +4,87 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
+	"proyecto-detallesPersonalizados-api/internal/storage"
 )
 
-type SolicitudUrgenteService struct{}
-
-func NewSolicitudUrgenteService() *SolicitudUrgenteService {
-	return &SolicitudUrgenteService{}
+type SolicitudUrgenteService struct {
+	Almacen storage.Almacen
 }
 
-func (s *SolicitudUrgenteService) ValidarSolicitudUrgente(
-	solicitud *models.SolicitudUrgente,
-) error {
+func NewSolicitudUrgenteService(almacen storage.Almacen) *SolicitudUrgenteService {
+	return &SolicitudUrgenteService{
+		Almacen: almacen,
+	}
+}
 
-	if solicitud.Cliente == "" {
-		return errors.New("Cliente obligatorio")
+// ================= VALIDACIONES =================
+
+func (s *SolicitudUrgenteService) ValidarSolicitudUrgente(sol *models.SolicitudUrgente) error {
+
+	if sol.Cliente == "" {
+		return errors.New("el cliente es obligatorio")
 	}
 
-	if solicitud.Descripcion == "" {
-		return errors.New("Descripción obligatoria")
+	if sol.Descripcion == "" {
+		return errors.New("la descripción es obligatoria")
 	}
 
-	if solicitud.FechaRequerida == "" {
-		return errors.New("Fecha requerida obligatoria")
+	if sol.FechaRequerida == "" {
+		return errors.New("la fecha requerida es obligatoria")
 	}
 
-	// Estado por defecto
-	if solicitud.Estado == "" {
-		solicitud.Estado = "Pendiente"
+	if sol.Estado == "" {
+		sol.Estado = "Pendiente"
+	}
+
+	return nil
+}
+
+// ================= CRUD =================
+
+func (s *SolicitudUrgenteService) Listar() []models.SolicitudUrgente {
+	return s.Almacen.ListarSolicitudesUrgentes()
+}
+
+func (s *SolicitudUrgenteService) Obtener(id int) (models.SolicitudUrgente, error) {
+
+	solicitud, ok := s.Almacen.BuscarSolicitudUrgentePorID(id)
+
+	if !ok {
+		return models.SolicitudUrgente{}, errors.New("solicitud urgente no encontrada")
+	}
+
+	return solicitud, nil
+}
+
+func (s *SolicitudUrgenteService) Crear(sol models.SolicitudUrgente) (models.SolicitudUrgente, error) {
+
+	if err := s.ValidarSolicitudUrgente(&sol); err != nil {
+		return models.SolicitudUrgente{}, err
+	}
+
+	return s.Almacen.CrearSolicitudUrgente(sol), nil
+}
+
+func (s *SolicitudUrgenteService) Actualizar(id int, datos models.SolicitudUrgente) (models.SolicitudUrgente, error) {
+
+	if err := s.ValidarSolicitudUrgente(&datos); err != nil {
+		return models.SolicitudUrgente{}, err
+	}
+
+	solicitud, ok := s.Almacen.ActualizarSolicitudUrgente(id, datos)
+
+	if !ok {
+		return models.SolicitudUrgente{}, errors.New("solicitud urgente no encontrada")
+	}
+
+	return solicitud, nil
+}
+
+func (s *SolicitudUrgenteService) Borrar(id int) error {
+
+	if !s.Almacen.BorrarSolicitudUrgente(id) {
+		return errors.New("solicitud urgente no encontrada")
 	}
 
 	return nil

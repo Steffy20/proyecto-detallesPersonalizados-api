@@ -8,195 +8,99 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
-	"proyecto-detallesPersonalizados-api/internal/service"
-)
-	var slotProduccionService = service.NewSlotProduccionService()
+)// ===================== CREAR =====================
 
-func CrearSlotProduccion(w http.ResponseWriter, r *http.Request) {
+func (s *Server) CrearSlotProduccion(w http.ResponseWriter, r *http.Request) {
 
 	var slot models.SlotProduccion
 
-	err := json.NewDecoder(r.Body).Decode(&slot)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&slot); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	err = slotProduccionService.ValidarSlotProduccion(
-		&slot,
-	)
-
+	creado, err := s.SlotsProduccion.Crear(slot)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Validar que la agenda exista
-	agendaExiste := false
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(creado)
+}
 
-	for _, agenda := range storage.AgendasProduccion {
-		if agenda.ID == slot.AgendaID {
-			agendaExiste = true
-			break
-		}
-	}
+// ===================== LISTAR =====================
 
-	if !agendaExiste {
-		http.Error(w, "La agenda asociada no existe", http.StatusBadRequest)
+func (s *Server) ObtenerSlotsProduccion(w http.ResponseWriter, r *http.Request) {
+
+	slots := s.SlotsProduccion.Listar()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(slots)
+}
+
+// ===================== OBTENER =====================
+
+func (s *Server) ObtenerSlotProduccionPorID(w http.ResponseWriter, r *http.Request) {
+
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	slot.ID = storage.SlotProduccionID
-	storage.SlotProduccionID++
-
-	storage.SlotsProduccion = append(
-		storage.SlotsProduccion,
-		slot,
-	)
+	slot, err := s.SlotsProduccion.Obtener(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-
 	json.NewEncoder(w).Encode(slot)
 }
 
+// ===================== ACTUALIZAR =====================
 
-func ObtenerSlotsProduccion(w http.ResponseWriter, r *http.Request) {
+func (s *Server) ActualizarSlotProduccion(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "application/json")
-
-	json.NewEncoder(w).Encode(storage.SlotsProduccion)
-}
-
-
-func ObtenerSlotProduccionPorID(w http.ResponseWriter, r *http.Request) {
-
-	idParam := chi.URLParam(r, "id")
-
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for _, slot := range storage.SlotsProduccion {
+	var slot models.SlotProduccion
 
-		if slot.ID == id {
-
-			w.Header().Set("Content-Type", "application/json")
-
-			json.NewEncoder(w).Encode(slot)
-
-			return
-		}
-	}
-
-	http.Error(w, "Slot de producción no encontrado", http.StatusNotFound)
-}
-
-
-func ActualizarSlotProduccion(w http.ResponseWriter, r *http.Request) {
-
-	idParam := chi.URLParam(r, "id")
-
-	id, err := strconv.Atoi(idParam)
-
-	if err != nil {
-		http.Error(w, "ID inválido", http.StatusBadRequest)
-		return
-	}
-
-	var slotActualizado models.SlotProduccion
-
-	err = json.NewDecoder(r.Body).Decode(&slotActualizado)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&slot); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	// VALIDACIONES
-	if slotActualizado.AgendaID <= 0 {
-		http.Error(w, "AgendaID obligatorio", http.StatusBadRequest)
+	actualizado, err := s.SlotsProduccion.Actualizar(id, slot)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	
-	if slotActualizado.CapacidadMaxima <= 0 {
-		http.Error(w, "Capacidad máxima inválida", http.StatusBadRequest)
-		return
-	}
-
-	if slotActualizado.PedidosAsignados < 0 {
-		http.Error(w, "Pedidos asignados inválidos", http.StatusBadRequest)
-		return
-	}
-
-	// Validar que la agenda exista
-	agendaExiste := false
-
-	for _, agenda := range storage.AgendasProduccion {
-		if agenda.ID == slotActualizado.AgendaID {
-			agendaExiste = true
-			break
-		}
-	}
-
-	if !agendaExiste {
-		http.Error(w, "La agenda asociada no existe", http.StatusBadRequest)
-		return
-	}
-
-	for i, slot := range storage.SlotsProduccion {
-
-		if slot.ID == id {
-
-			slotActualizado.ID = id
-
-			storage.SlotsProduccion[i] = slotActualizado
-
-			w.Header().Set("Content-Type", "application/json")
-
-			json.NewEncoder(w).Encode(slotActualizado)
-
-			return
-		}
-	}
-
-	http.Error(w, "Slot de producción no encontrado", http.StatusNotFound)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(actualizado)
 }
 
+// ===================== ELIMINAR =====================
 
-func EliminarSlotProduccion(w http.ResponseWriter, r *http.Request) {
+func (s *Server) EliminarSlotProduccion(w http.ResponseWriter, r *http.Request) {
 
-	idParam := chi.URLParam(r, "id")
-
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for i, slot := range storage.SlotsProduccion {
-
-		if slot.ID == id {
-
-			storage.SlotsProduccion = append(
-				storage.SlotsProduccion[:i],
-				storage.SlotsProduccion[i+1:]...,
-			)
-
-			w.WriteHeader(http.StatusOK)
-
-			w.Write([]byte("Slot de producción eliminado"))
-
-			return
-		}
+	if err := s.SlotsProduccion.Borrar(id); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "Slot de producción no encontrado", http.StatusNotFound)
+	w.WriteHeader(http.StatusNoContent)
 }

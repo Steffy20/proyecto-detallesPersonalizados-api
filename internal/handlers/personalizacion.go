@@ -6,181 +6,102 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
-	"proyecto-detallesPersonalizados-api/internal/service"
 )
 
-var personalizacionService = service.NewPersonalizacionService()
+// ===================== CREAR =====================
 
-func CrearPersonalizacion(w http.ResponseWriter, r *http.Request) {
+func (s *Server) CrearPersonalizacion(w http.ResponseWriter, r *http.Request) {
+
 	var personalizacion models.Personalizacion
 
-	err := json.NewDecoder(r.Body).Decode(&personalizacion)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&personalizacion); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-// VALIDACIONES
-	err = personalizacionService.ValidarPersonalizacion(
-	&personalizacion,
-)
-
-if err != nil {
-	http.Error(w, err.Error(), http.StatusBadRequest)
-	return
-}
-
-// Validar que el PedidoID exista
-	pedidoExiste := false
-
-	for _, pedido := range storage.Pedidos {
-		if pedido.ID == personalizacion.PedidoID {
-			pedidoExiste = true
-			break
-		}
-	}
-
-	if !pedidoExiste {
-		http.Error(w, "El pedido asociado no existe", http.StatusBadRequest)
+	creada, err := s.Personalizaciones.Crear(personalizacion)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-    personalizacion.ID = storage.PersonalizacionID
-	storage.PersonalizacionID++
-
-    storage.Personalizaciones = append(
-	    storage.Personalizaciones, 
-	    personalizacion,
-)
-
-w.Header().Set("Content-Type", "application/json")
-w.WriteHeader(http.StatusCreated)
-
-json.NewEncoder(w).Encode(personalizacion)
-}
-
-
-func ObtenerPersonalizaciones(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(storage.Personalizaciones)
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(creada)
 }
 
-func ObtenerPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
+// ===================== LISTAR =====================
 
-	idParam := chi.URLParam(r, "id")
+func (s *Server) ObtenerPersonalizaciones(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(idParam)
+	personalizaciones := s.Personalizaciones.Listar()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(personalizaciones)
+}
+
+// ===================== OBTENER =====================
+
+func (s *Server) ObtenerPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
+
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for _, p := range storage.Personalizaciones {
-		if p.ID == id {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(p)
-			return
-		}
+	personalizacion, err := s.Personalizaciones.Obtener(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "No encontrado", http.StatusNotFound)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(personalizacion)
 }
 
-func ActualizarPersonalizacion(w http.ResponseWriter, r *http.Request) {
+// ===================== ACTUALIZAR =====================
 
-	idParam := chi.URLParam(r, "id")
+func (s *Server) ActualizarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	var personalizacionActualizada models.Personalizacion
+	var personalizacion models.Personalizacion
 
-	err = json.NewDecoder(r.Body).Decode(&personalizacionActualizada)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&personalizacion); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-// VALIDACIONES
-	if personalizacionActualizada.PedidoID == 0 {
-		http.Error(w, "PedidoID es obligatorio", http.StatusBadRequest)
-		return
-	}
-if personalizacionActualizada.Mensaje == "" {
-		http.Error(w, "El mensaje es obligatorio", http.StatusBadRequest)
+	actualizada, err := s.Personalizaciones.Actualizar(id, personalizacion)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	if personalizacionActualizada.Color == "" {
-		http.Error(w, "El color es obligatorio", http.StatusBadRequest)
-		return
-	}	
-// Validar que el PedidoID exista
-	pedidoExiste := false
-
-	for _, pedido := range storage.Pedidos {
-		if pedido.ID == personalizacionActualizada.PedidoID {
-			pedidoExiste = true
-			break
-		}
-	}
-
-	if !pedidoExiste {
-		http.Error(w, "El pedido asociado no existe", http.StatusBadRequest)
-		return
-	}
-
-	for i, p := range storage.Personalizaciones {
-
-		if p.ID == id {
-
-			personalizacionActualizada.ID = id
-			storage.Personalizaciones[i] = personalizacionActualizada
-
-
-			w.Header().Set("Content-Type", "application/json")
-
-			json.NewEncoder(w).Encode(personalizacionActualizada		)
-			return
-		}
-	}
-
-	http.Error(w, "Personalización no encontrada", http.StatusNotFound)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(actualizada)
 }
 
-func EliminarPersonalizacion(w http.ResponseWriter, r *http.Request) {
+// ===================== ELIMINAR =====================
 
-	idParam := chi.URLParam(r, "id")
+func (s *Server) EliminarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(idParam)
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for i, p := range storage.Personalizaciones {
-
-		if p.ID == id {
-
-			storage.Personalizaciones = append(
-				storage.Personalizaciones[:i],
-				storage.Personalizaciones[i+1:]...,
-			)
-
-			w.Write([]byte("Eliminado correctamente"))
-			return
-		}
+	if err := s.Personalizaciones.Borrar(id); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "No encontrado", http.StatusNotFound)
+	w.WriteHeader(http.StatusNoContent)
 }

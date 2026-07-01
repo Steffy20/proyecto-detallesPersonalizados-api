@@ -1,7 +1,7 @@
 package models
 
 type ProductoPersonalizado struct {
-	ID        int     `json:"id"`
+	ID        int     `gorm:"primaryKey" json:"id"`
 	PedidoID  int     `json:"pedido_id"`
 	Nombre    string  `json:"nombre"`
 	Categoria string  `json:"categoria"`

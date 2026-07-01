@@ -8,137 +8,104 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
-	"proyecto-detallesPersonalizados-api/internal/service"
-)
-	var pedidoService = service.NewPedidoService()
 
-func CrearPedido(w http.ResponseWriter, r *http.Request) {
+)
+
+// ===================== CREAR =====================
+
+func (s *Server) CrearPedido(w http.ResponseWriter, r *http.Request) {
 
 	var pedido models.Pedido
 
-	err := json.NewDecoder(r.Body).Decode(&pedido)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&pedido); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	err = pedidoService.ValidarPedido(&pedido)
-
+	creado, err := s.Pedidos.Crear(pedido)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	pedido.ID = storage.PedidoID
-	storage.PedidoID++
-
-	storage.Pedidos = append(storage.Pedidos, pedido)
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(creado)
+}
 
+// ===================== LISTAR =====================
+
+func (s *Server) ObtenerPedidos(w http.ResponseWriter, r *http.Request) {
+
+	pedidos := s.Pedidos.Listar()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(pedidos)
+}
+
+
+
+// ===================== OBTENER =====================
+
+func (s *Server) ObtenerPedidoPorID(w http.ResponseWriter, r *http.Request) {
+
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	pedido, err := s.Pedidos.Obtener(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(pedido)
 }
 
+// ===================== ACTUALIZAR =====================
 
-func ObtenerPedidos(w http.ResponseWriter, r *http.Request) {
+func (s *Server) ActualizarPedido(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(storage.Pedidos)
-}
-
-
-func ObtenerPedidoPorID(w http.ResponseWriter, r *http.Request) {
-
-	idParam := chi.URLParam(r, "id")
-
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for _, pedido := range storage.Pedidos {
+	var pedido models.Pedido
 
-		if pedido.ID == id {
-
-			w.Header().Set("Content-Type", "application/json")
-
-			json.NewEncoder(w).Encode(pedido)
-
-			return
-		}
-	}
-
-	http.Error(w, "Pedido no encontrado", http.StatusNotFound)
-}
-
-
-func ActualizarPedido(w http.ResponseWriter, r *http.Request) {
-
-	idParam := chi.URLParam(r, "id")
-
-	id, err := strconv.Atoi(idParam)
-
-	if err != nil {
-		http.Error(w, "ID inválido", http.StatusBadRequest)
-		return
-	}
-
-	var pedidoActualizado models.Pedido
-
-	err = json.NewDecoder(r.Body).Decode(&pedidoActualizado)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&pedido); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	for i, pedido := range storage.Pedidos {
-
-		if pedido.ID == id {
-
-			pedidoActualizado.ID = id
-
-			storage.Pedidos[i] = pedidoActualizado
-
-			w.Header().Set("Content-Type", "application/json")
-
-			json.NewEncoder(w).Encode(pedidoActualizado)
-
-			return
-		}
+	actualizado, err := s.Pedidos.Actualizar(id, pedido)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "Pedido no encontrado", http.StatusNotFound)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(actualizado)
 }
 
-func EliminarPedido(w http.ResponseWriter, r *http.Request) {
+// ===================== ELIMINAR =====================
 
-	idParam := chi.URLParam(r, "id")
+func (s *Server) EliminarPedido(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for i, pedido := range storage.Pedidos {
-
-		if pedido.ID == id {
-
-			storage.Pedidos = append(storage.Pedidos[:i], storage.Pedidos[i+1:]...)
-
-			w.WriteHeader(http.StatusOK)
-
-			w.Write([]byte("Pedido eliminado"))
-
-			return
-		}
+	if err := s.Pedidos.Borrar(id); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "Pedido no encontrado", http.StatusNotFound)
+	w.WriteHeader(http.StatusNoContent)
 }

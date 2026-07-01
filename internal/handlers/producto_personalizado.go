@@ -8,184 +8,102 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
-	"proyecto-detallesPersonalizados-api/internal/service"
 )
 
-var productoPersonalizadoService = service.NewProductoPersonalizadoService()
 
-func CrearProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
+// ===================== CREAR =====================
 
-	var p models.ProductoPersonalizado
+func (s *Server) CrearProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
-	err := json.NewDecoder(r.Body).Decode(&p)
-	if err != nil {
+	var producto models.ProductoPersonalizado
+
+	if err := json.NewDecoder(r.Body).Decode(&producto); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	// VALIDACIONES 
-	err = productoPersonalizadoService.ValidarProductoPersonalizado(&p)
-
-if err != nil {
-	http.Error(w, err.Error(), http.StatusBadRequest)
-	return
-}
-
-	// Validar que el PedidoID exista
-	pedidoExiste := false
-
-	for _, pedido := range storage.Pedidos {
-		if pedido.ID == p.PedidoID {
-			pedidoExiste = true
-			break
-		}
-	}
-
-	if !pedidoExiste {
-		http.Error(w, "El pedido asociado no existe", http.StatusBadRequest)
+	creado, err := s.ProductosPersonalizados.Crear(producto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	// guardar en memoria
-	p.ID = storage.ProductoPersonalizadoID
-	storage.ProductoPersonalizadoID++
-
-	storage.ProductosPersonalizados = append(
-		storage.ProductosPersonalizados,
-		 p,
-	)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-
-	json.NewEncoder(w).Encode(p)
+	json.NewEncoder(w).Encode(creado)
 }
 
-func ObtenerProductosPersonalizados(w http.ResponseWriter, r *http.Request) {
+// ===================== LISTAR =====================
+
+func (s *Server) ObtenerProductosPersonalizados(w http.ResponseWriter, r *http.Request) {
+
+	productos := s.ProductosPersonalizados.Listar()
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(storage.ProductosPersonalizados)
+	json.NewEncoder(w).Encode(productos)
 }
 
-func ObtenerProductoPersonalizadoPorID(w http.ResponseWriter, r *http.Request) {
+// ===================== OBTENER =====================
 
-	idParam := chi.URLParam(r, "id")
+func (s *Server) ObtenerProductoPersonalizadoPorID(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(idParam)
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for _, p := range storage.ProductosPersonalizados {
-		if p.ID == id {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(p)
-			return
-		}
+	producto, err := s.ProductosPersonalizados.Obtener(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "No encontrado", http.StatusNotFound)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(producto)
 }
 
-func ActualizarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
+// ===================== ACTUALIZAR =====================
 
-	idParam := chi.URLParam(r, "id")
+func (s *Server) ActualizarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	var productoActualizado models.ProductoPersonalizado
+	var producto models.ProductoPersonalizado
 
-	err = json.NewDecoder(r.Body).Decode(&productoActualizado)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&producto); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	//validaciones
-	if productoActualizado.PedidoID <= 0 {
-		http.Error(w, "PedidoID obligatorio", http.StatusBadRequest)
+	actualizado, err := s.ProductosPersonalizados.Actualizar(id, producto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	if productoActualizado.Nombre == "" {
-		http.Error(w, "Nombre obligatorio", http.StatusBadRequest)
-		return
-	}
-
-	if productoActualizado.Cantidad <= 0 {
-		http.Error(w, "Cantidad inválida", http.StatusBadRequest)
-		return
-	}
-
-	if productoActualizado.Precio <= 0 {
-		http.Error(w, "Precio inválido", http.StatusBadRequest)
-		return
-	}
-
-	// Validar que el PedidoID exista
-	pedidoExiste := false
-
-	for _, pedido := range storage.Pedidos {
-		if pedido.ID == productoActualizado.PedidoID {
-			pedidoExiste = true
-			break
-		}
-	}
-
-	if !pedidoExiste {
-		http.Error(w, "El pedido asociado no existe", http.StatusBadRequest)
-		return
-	}
-
-	for i, producto := range storage.ProductosPersonalizados {
-
-		if producto.ID == id {
-
-			productoActualizado.ID = id
-
-			storage.ProductosPersonalizados[i] = productoActualizado
-
-			w.Header().Set("Content-Type", "application/json")
-
-			json.NewEncoder(w).Encode(productoActualizado)
-
-			return
-		}
-	}
-
-	http.Error(w, "Producto personalizado no encontrado", http.StatusNotFound)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(actualizado)
 }
-func EliminarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
-	idParam := chi.URLParam(r, "id")
+// ===================== ELIMINAR =====================
 
-	id, err := strconv.Atoi(idParam)
+func (s *Server) EliminarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
+
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for i, p := range storage.ProductosPersonalizados {
-
-		if p.ID == id {
-
-			storage.ProductosPersonalizados = append(
-				storage.ProductosPersonalizados[:i],
-				storage.ProductosPersonalizados[i+1:]...,
-			)
-
-			w.Write([]byte("Eliminado correctamente"))
-			return
-		}
+	if err := s.ProductosPersonalizados.Borrar(id); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "No encontrado", http.StatusNotFound)
+	w.WriteHeader(http.StatusNoContent)
 }

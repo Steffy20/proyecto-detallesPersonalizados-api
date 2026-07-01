@@ -8,163 +8,101 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
-	"proyecto-detallesPersonalizados-api/internal/service"
+	
 )
-	var solicitudUrgenteService = service.NewSolicitudUrgenteService()
+	// ===================== CREAR =====================
 
-func CrearSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
+func (s *Server) CrearSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
 
 	var solicitud models.SolicitudUrgente
 
-	err := json.NewDecoder(r.Body).Decode(&solicitud)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&solicitud); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	err = solicitudUrgenteService.ValidarSolicitudUrgente(
-		&solicitud,
-	)
-
+	creada, err := s.SolicitudesUrgentes.Crear(solicitud)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	solicitud.ID = storage.SolicitudUrgenteID
-	storage.SolicitudUrgenteID++
-
-	storage.SolicitudesUrgentes = append(
-		storage.SolicitudesUrgentes,
-		solicitud,
-	)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(creada)
+}
 
+// ===================== LISTAR =====================
+
+func (s *Server) ObtenerSolicitudesUrgentes(w http.ResponseWriter, r *http.Request) {
+
+	solicitudes := s.SolicitudesUrgentes.Listar()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(solicitudes)
+}
+
+// ===================== OBTENER =====================
+
+func (s *Server) ObtenerSolicitudUrgentePorID(w http.ResponseWriter, r *http.Request) {
+
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	solicitud, err := s.SolicitudesUrgentes.Obtener(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(solicitud)
 }
 
-func ObtenerSolicitudesUrgentes(w http.ResponseWriter, r *http.Request) {
+// ===================== ACTUALIZAR =====================
 
-	w.Header().Set("Content-Type", "application/json")
+func (s *Server) ActualizarSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
 
-	json.NewEncoder(w).Encode(storage.SolicitudesUrgentes)
-}
-
-
-func ObtenerSolicitudUrgentePorID(w http.ResponseWriter, r *http.Request) {
-
-	idParam := chi.URLParam(r, "id")
-
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for _, solicitud := range storage.SolicitudesUrgentes {
+	var solicitud models.SolicitudUrgente
 
-		if solicitud.ID == id {
-
-			w.Header().Set("Content-Type", "application/json")
-
-			json.NewEncoder(w).Encode(solicitud)
-
-			return
-		}
-	}
-
-	http.Error(w, "Solicitud urgente no encontrada", http.StatusNotFound)
-}
-
-
-func ActualizarSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
-
-	idParam := chi.URLParam(r, "id")
-
-	id, err := strconv.Atoi(idParam)
-
-	if err != nil {
-		http.Error(w, "ID inválido", http.StatusBadRequest)
-		return
-	}
-
-	var solicitudActualizada models.SolicitudUrgente
-
-	err = json.NewDecoder(r.Body).Decode(&solicitudActualizada)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&solicitud); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	// VALIDACIONES
-	if solicitudActualizada.Cliente == "" {
-		http.Error(w, "Cliente obligatorio", http.StatusBadRequest)
+	actualizada, err := s.SolicitudesUrgentes.Actualizar(id, solicitud)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	if solicitudActualizada.Descripcion == "" {
-		http.Error(w, "Descripción obligatoria", http.StatusBadRequest)
-		return
-	}
-
-	if solicitudActualizada.FechaRequerida == "" {
-		http.Error(w, "Fecha requerida obligatoria", http.StatusBadRequest)
-		return
-	}
-
-	for i, solicitud := range storage.SolicitudesUrgentes {
-
-		if solicitud.ID == id {
-
-			solicitudActualizada.ID = id
-
-			storage.SolicitudesUrgentes[i] = solicitudActualizada
-
-			w.Header().Set("Content-Type", "application/json")
-
-			json.NewEncoder(w).Encode(solicitudActualizada)
-
-			return
-		}
-	}
-
-	http.Error(w, "Solicitud urgente no encontrada", http.StatusNotFound)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(actualizada)
 }
 
+// ===================== ELIMINAR =====================
 
-func EliminarSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
+func (s *Server) EliminarSolicitudUrgente(w http.ResponseWriter, r *http.Request) {
 
-	idParam := chi.URLParam(r, "id")
-
-	id, err := strconv.Atoi(idParam)
-
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for i, solicitud := range storage.SolicitudesUrgentes {
-
-		if solicitud.ID == id {
-
-			storage.SolicitudesUrgentes = append(
-				storage.SolicitudesUrgentes[:i],
-				storage.SolicitudesUrgentes[i+1:]...,
-			)
-
-			w.WriteHeader(http.StatusOK)
-
-			w.Write([]byte("Solicitud urgente eliminada"))
-
-			return
-		}
+	if err := s.SolicitudesUrgentes.Borrar(id); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "Solicitud urgente no encontrada", http.StatusNotFound)
+	w.WriteHeader(http.StatusNoContent)
 }

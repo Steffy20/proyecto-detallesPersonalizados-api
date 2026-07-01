@@ -1,7 +1,7 @@
 package models
 
 type Reclamo struct {
-	ID          int    `json:"id"`
+	ID          int    `gorm:"primaryKey" json:"id"`
 	ClienteID   int    `json:"cliente_id"`
 	PedidoID    int    `json:"pedido_id"`
 	Descripcion string `json:"descripcion"`

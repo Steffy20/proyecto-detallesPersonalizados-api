@@ -8,141 +8,101 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
-	"proyecto-detallesPersonalizados-api/internal/service"
+	
 )
-	var clienteService = service.NewClienteService()
+	// ===================== CREAR =====================
 
-func CrearCliente(w http.ResponseWriter, r *http.Request) {
+func (s *Server) CrearCliente(w http.ResponseWriter, r *http.Request) {
 
 	var cliente models.Cliente
 
-	err := json.NewDecoder(r.Body).Decode(&cliente)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&cliente); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	err = clienteService.ValidarCliente(&cliente)
-
+	creado, err := s.Clientes.Crear(cliente)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	cliente.ID = storage.ClienteID
-	storage.ClienteID++
-
-	storage.Clientes = append(storage.Clientes, cliente)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(creado)
+}
 
+// ===================== LISTAR =====================
+
+func (s *Server) ObtenerClientes(w http.ResponseWriter, r *http.Request) {
+
+	clientes := s.Clientes.Listar()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(clientes)
+}
+
+// ===================== OBTENER =====================
+
+func (s *Server) ObtenerClientePorID(w http.ResponseWriter, r *http.Request) {
+
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	cliente, err := s.Clientes.Obtener(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(cliente)
 }
 
-func ObtenerClientes(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(storage.Clientes)
-}
+// ===================== ACTUALIZAR =====================
 
-func ObtenerClientePorID(w http.ResponseWriter, r *http.Request) {
+func (s *Server) ActualizarCliente(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
+	var cliente models.Cliente
 
-	for _, cliente := range storage.Clientes {
-
-		if cliente.ID == id {
-
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(cliente)
-
-			return
-		}
-	}
-
-	http.Error(w, "Cliente no encontrado", http.StatusNotFound)
-}
-
-
-func ActualizarCliente(w http.ResponseWriter, r *http.Request) {
-
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-
-	if err != nil {
-		http.Error(w, "ID inválido", http.StatusBadRequest)
-		return
-	}
-
-	var clienteActualizado models.Cliente
-
-	err = json.NewDecoder(r.Body).Decode(&clienteActualizado)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&cliente); err != nil {
 		http.Error(w, "Datos inválidos", http.StatusBadRequest)
 		return
 	}
 
-	if clienteActualizado.Nombre == "" {
-		http.Error(w, "Nombre obligatorio", http.StatusBadRequest)
+	actualizado, err := s.Clientes.Actualizar(id, cliente)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	if clienteActualizado.Telefono == "" {
-		http.Error(w, "Teléfono obligatorio", http.StatusBadRequest)
-		return
-	}
-
-	for i, cliente := range storage.Clientes {
-
-		if cliente.ID == id {
-
-			clienteActualizado.ID = id
-
-			storage.Clientes[i] = clienteActualizado
-
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(clienteActualizado)
-
-			return
-		}
-	}
-
-	http.Error(w, "Cliente no encontrado", http.StatusNotFound)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(actualizado)
 }
 
+// ===================== ELIMINAR =====================
 
-func EliminarCliente(w http.ResponseWriter, r *http.Request) {
+func (s *Server) EliminarCliente(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	for i, cliente := range storage.Clientes {
-
-		if cliente.ID == id {
-
-			storage.Clientes = append(
-				storage.Clientes[:i],
-				storage.Clientes[i+1:]...,
-			)
-
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("Cliente eliminado"))
-
-			return
-		}
+	if err := s.Clientes.Borrar(id); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "Cliente no encontrado", http.StatusNotFound)
+	w.WriteHeader(http.StatusNoContent)
 }
