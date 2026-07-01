@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"proyecto-detallesPersonalizados-api/internal/handlers"
+	"proyecto-detallesPersonalizados-api/internal/models"
 	"proyecto-detallesPersonalizados-api/internal/service"
 	"proyecto-detallesPersonalizados-api/internal/storage"
 
@@ -13,6 +15,9 @@ import (
 	 "github.com/go-chi/chi/v5/middleware"
 
     middlewareAPI "proyecto-detallesPersonalizados-api/internal/middleware"
+
+	"github.com/glebarez/sqlite"
+	"gorm.io/gorm"
 
 )
 
@@ -25,8 +30,29 @@ func main() {
 r.Use(middleware.Logger)
 r.Use(middlewareAPI.CORS)
 
-// INYECCIÓN DE DEPENDENCIAS
-	// ==========================================
+// conexion a SQLite
+
+db, err := gorm.Open(sqlite.Open("detallesPersonalizados.db"), &gorm.Config{})
+if err != nil {
+	log.Fatal(err)
+}
+
+err = db.AutoMigrate(
+	&models.Pedido{},
+	&models.Personalizacion{},
+	&models.ProductoPersonalizado{},
+	&models.SolicitudUrgente{},
+	&models.AgendaProduccion{},
+	&models.SlotProduccion{},
+	&models.Cliente{},
+	&models.Reclamo{},
+	&models.SeguimientoPedido{},
+)
+
+if err != nil {
+	log.Fatal(err)
+}
+
 
 	Almacen := storage.NuevoAlmacenSQLite(db)
 
