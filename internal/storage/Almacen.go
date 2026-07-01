@@ -2,6 +2,11 @@ package storage
 
 import "proyecto-detallesPersonalizados-api/internal/models"
 
+type UserRepository interface {
+	CrearUsuario(u models.Usuario) (models.Usuario, error)
+	BuscarUsuarioPorEmail(email string) (models.Usuario, bool)
+}
+
 type Almacen interface {
 
 	// ===================== PEDIDOS =====================
@@ -76,4 +81,3 @@ type Almacen interface {
 	ActualizarReclamo(id int, datos models.Reclamo) (models.Reclamo, bool)
 	BorrarReclamo(id int) bool
 }
-

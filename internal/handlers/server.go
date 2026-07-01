@@ -11,9 +11,10 @@ type Server struct {
 	AgendasProduccion   *service.AgendaProduccionService
 	SlotsProduccion     *service.SlotProduccionService
 
-	Clientes            *service.ClienteService
-	Seguimientos  *service.SeguimientoPedidoService
-	Reclamos            *service.ReclamoService
+	Clientes     *service.ClienteService
+	Seguimientos *service.SeguimientoPedidoService
+	Reclamos     *service.ReclamoService
+	Auth         *service.AuthService
 }
 
 func NewServer(
@@ -28,8 +29,8 @@ func NewServer(
 	clientes *service.ClienteService,
 	seguimientos *service.SeguimientoPedidoService,
 	reclamos *service.ReclamoService,
+	auth *service.AuthService,
 ) *Server {
-
 	return &Server{
 		Pedidos:                 pedidos,
 		Personalizaciones:       personalizaciones,
@@ -39,8 +40,9 @@ func NewServer(
 		AgendasProduccion:   agendasProduccion,
 		SlotsProduccion:     slotsProduccion,
 
-		Clientes:           clientes,
+		Clientes:     clientes,
 		Seguimientos: seguimientos,
-		Reclamos:           reclamos,
+		Reclamos:     reclamos,
+		Auth:         auth,
 	}
 }
