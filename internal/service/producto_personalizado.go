@@ -4,15 +4,23 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
+	
 )
 
+type ProductoPersonalizadoRepository interface {
+	ListarProductosPersonalizados() []models.ProductoPersonalizado
+	BuscarProductoPersonalizadoPorID(id int) (models.ProductoPersonalizado, bool)
+	CrearProductoPersonalizado(models.ProductoPersonalizado) models.ProductoPersonalizado
+	ActualizarProductoPersonalizado(id int, datos models.ProductoPersonalizado) (models.ProductoPersonalizado, bool)
+	BorrarProductoPersonalizado(id int) bool
 
-type ProductoPersonalizadoService struct{
-	Almacen storage.Almacen
 }
 
-func NewProductoPersonalizadoService(almacen storage.Almacen) *ProductoPersonalizadoService {
+type ProductoPersonalizadoService struct{
+	Almacen ProductoPersonalizadoRepository
+}
+
+func NewProductoPersonalizadoService(almacen ProductoPersonalizadoRepository) *ProductoPersonalizadoService {
 	return &ProductoPersonalizadoService{
 		Almacen: almacen,
 	}

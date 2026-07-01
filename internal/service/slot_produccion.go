@@ -4,13 +4,21 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
+	
 )
 
-type SlotProduccionService struct{
-	Almacen storage.Almacen
+type SlotProduccionRepository interface {
+	ListarSlotsProduccion() []models.SlotProduccion	
+	BuscarSlotProduccionPorID(id int) (models.SlotProduccion, bool)
+	CrearSlotProduccion(models.SlotProduccion) models.SlotProduccion
+	ActualizarSlotProduccion(id int, datos models.SlotProduccion) (models.SlotProduccion, bool)
+	BorrarSlotProduccion(id int) bool
 }
-func NewSlotProduccionService(almacen storage.Almacen) *SlotProduccionService {
+
+type SlotProduccionService struct{
+	Almacen SlotProduccionRepository
+}
+func NewSlotProduccionService(almacen SlotProduccionRepository) *SlotProduccionService {
 	return &SlotProduccionService{
 		Almacen: almacen,
 	}

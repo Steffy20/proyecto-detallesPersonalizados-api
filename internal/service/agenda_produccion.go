@@ -4,15 +4,24 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
+	
 )
 
-type AgendaProduccionService struct {
-	Almacen storage.Almacen
+type AgendaProduccionRepository interface {
+	ListarAgendasProduccion() []models.AgendaProduccion
+	BuscarAgendaProduccionPorID(id int) (models.AgendaProduccion, bool)
+	CrearAgendaProduccion(models.AgendaProduccion) models.AgendaProduccion
+	ActualizarAgendaProduccion(id int, datos models.AgendaProduccion) (models.AgendaProduccion, bool)
+	BorrarAgendaProduccion(id int) bool
 }
 
 
-func NewAgendaProduccionService(almacen storage.Almacen) *AgendaProduccionService {
+type AgendaProduccionService struct {
+	Almacen AgendaProduccionRepository
+}
+
+
+func NewAgendaProduccionService(almacen AgendaProduccionRepository) *AgendaProduccionService {
 	return &AgendaProduccionService{
 		Almacen: almacen,
 	}

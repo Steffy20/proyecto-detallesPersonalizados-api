@@ -4,14 +4,22 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
+	
 )
 
-type ClienteService struct {
-	Almacen storage.Almacen
+type ClienteRepository interface {
+	ListarClientes() []models.Cliente
+	BuscarClientePorID(id int) (models.Cliente, bool)
+	CrearCliente(models.Cliente) models.Cliente
+	ActualizarCliente(id int, datos models.Cliente) (models.Cliente, bool)
+	BorrarCliente(id int) bool
 }
 
-func NewClienteService(almacen storage.Almacen) *ClienteService {
+type ClienteService struct {
+	Almacen ClienteRepository
+}
+
+func NewClienteService(almacen ClienteRepository) *ClienteService {
 	return &ClienteService{
 		Almacen: almacen,
 	}

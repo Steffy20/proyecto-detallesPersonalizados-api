@@ -4,17 +4,24 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
+	
 )
 
-
-
-type PersonalizacionService struct {
-	Almacen storage.Almacen
+type PersonalizacionRepository interface {
+	ListarPersonalizaciones() []models.Personalizacion
+	BuscarPersonalizacionPorID(id int) (models.Personalizacion, bool)
+	CrearPersonalizacion(models.Personalizacion) models.Personalizacion
+	ActualizarPersonalizacion(id int, datos models.Personalizacion) (models.Personalizacion, bool)
+	BorrarPersonalizacion(id int) bool
 }
 
 
-func NewPersonalizacionService(almacen storage.Almacen) *PersonalizacionService {
+type PersonalizacionService struct {
+	Almacen PersonalizacionRepository
+}
+
+
+func NewPersonalizacionService(almacen PersonalizacionRepository) *PersonalizacionService {
 	return &PersonalizacionService{
 		Almacen: almacen,
 	}

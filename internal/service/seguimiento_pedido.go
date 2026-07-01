@@ -4,14 +4,21 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
+	
 )
-
-type SeguimientoPedidoService struct {
-	Almacen storage.Almacen
+type SeguimientoPedidoRepository interface {
+	ListarSeguimientosPedido() []models.SeguimientoPedido
+	BuscarSeguimientoPedidoPorID(id int) (models.SeguimientoPedido, bool)
+	CrearSeguimientoPedido(models.SeguimientoPedido) models.SeguimientoPedido
+	ActualizarSeguimientoPedido(id int, datos models.SeguimientoPedido) (models.SeguimientoPedido, bool)
+	BorrarSeguimientoPedido(id int) bool
 }
 
-func NewSeguimientoPedidoService(almacen storage.Almacen) *SeguimientoPedidoService {
+type SeguimientoPedidoService struct {
+	Almacen SeguimientoPedidoRepository
+}
+
+func NewSeguimientoPedidoService(almacen SeguimientoPedidoRepository) *SeguimientoPedidoService {
 	return &SeguimientoPedidoService{
 		Almacen: almacen,
 	}

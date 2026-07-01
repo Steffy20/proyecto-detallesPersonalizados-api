@@ -4,14 +4,22 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
+	
 )
 
-type ReclamoService struct {
-	Almacen storage.Almacen
+type ReclamoRepository interface {
+	ListarReclamos() []models.Reclamo
+	BuscarReclamoPorID(id int) (models.Reclamo, bool)
+	CrearReclamo(models.Reclamo) models.Reclamo
+	ActualizarReclamo(id int, datos models.Reclamo) (models.Reclamo, bool)
+	BorrarReclamo(id int) bool
 }
 
-func NewReclamoService(almacen storage.Almacen) *ReclamoService {
+type ReclamoService struct {
+	Almacen ReclamoRepository
+}
+
+func NewReclamoService(almacen ReclamoRepository) *ReclamoService {
 	return &ReclamoService{
 		Almacen: almacen,
 	}

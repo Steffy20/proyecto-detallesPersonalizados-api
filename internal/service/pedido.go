@@ -4,18 +4,29 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
+	
 )
 
-type PedidoService struct {
-	Almacen storage.Almacen
+//INTERFACE DE PEDIDO PARA LOS MOCKS
+type PedidoRepository interface {
+	ListarPedidos() []models.Pedido
+	BuscarPedidoPorID(id int) (models.Pedido, bool)
+	CrearPedido(models.Pedido) models.Pedido
+	ActualizarPedido(id int, datos models.Pedido) (models.Pedido, bool)
+	BorrarPedido(id int) bool
 }
 
-func NewPedidoService(Almacen storage.Almacen) *PedidoService {
+
+type PedidoService struct {
+	Almacen PedidoRepository
+}
+
+func NewPedidoService(Almacen PedidoRepository) *PedidoService {
 	return &PedidoService{
 		Almacen: Almacen,
 	}
 }
+
 
 func (s *PedidoService) ValidarPedido(pedido *models.Pedido) error {
 

@@ -4,14 +4,22 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	"proyecto-detallesPersonalizados-api/internal/storage"
+	
 )
 
-type SolicitudUrgenteService struct {
-	Almacen storage.Almacen
+type SolicitudUrgenteRepository interface {
+	ListarSolicitudesUrgentes() []models.SolicitudUrgente
+	BuscarSolicitudUrgentePorID(id int) (models.SolicitudUrgente, bool)
+	CrearSolicitudUrgente(models.SolicitudUrgente) models.SolicitudUrgente
+	ActualizarSolicitudUrgente(id int, datos models.SolicitudUrgente) (models.SolicitudUrgente, bool)
+	BorrarSolicitudUrgente(id int) bool
 }
 
-func NewSolicitudUrgenteService(almacen storage.Almacen) *SolicitudUrgenteService {
+type SolicitudUrgenteService struct {
+	Almacen SolicitudUrgenteRepository
+}
+
+func NewSolicitudUrgenteService(almacen SolicitudUrgenteRepository) *SolicitudUrgenteService {
 	return &SolicitudUrgenteService{
 		Almacen: almacen,
 	}
