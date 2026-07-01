@@ -17,6 +17,7 @@ var PersonalizacionID = 1
 var ProductosPersonalizados = []models.ProductoPersonalizado{}
 var ProductoPersonalizadoID = 1
 
+<<<<<<< HEAD
 
 var SolicitudesUrgentes = []models.SolicitudUrgente{}
 var SolicitudUrgenteID = 1
@@ -27,6 +28,9 @@ var AgendaProduccionID = 1
 var SlotsProduccion = []models.SlotProduccion{}
 var SlotProduccionID = 1
 
+=======
+//modulo de clientes
+>>>>>>> 53c8cd66769e645b9a25e9c8a1464333d6df57d0
 var Clientes = []models.Cliente{}
 var ClienteID = 1
 
@@ -36,6 +40,7 @@ var SeguimientoPedidoID = 1
 var Reclamos = []models.Reclamo{}
 var ReclamoID = 1
 
+<<<<<<< HEAD
 
 // AlmacenMemoria implementa la interfaz Almacen usando almacenamiento en memoria.
 type AlmacenMemoria struct{}
@@ -520,3 +525,21 @@ func (a *AlmacenMemoria) BorrarReclamo(id int) bool {
 	return false
 }
 
+=======
+<<<<<<< HEAD
+//modulo de solicitud urgente
+var SolicitudesUrgentes = []models.SolicitudUrgente{}
+var SolicitudUrgenteID = 1
+var AgendasProduccion = []models.AgendaProduccion{}
+var AgendaProduccionID = 1
+=======
+var SolicitudesUrgentes = []models.SolicitudUrgente{}
+var SolicitudUrgenteID = 1
+
+var AgendasProduccion = []models.AgendaProduccion{}
+var AgendaProduccionID = 1
+
+>>>>>>> 38f5b01a7af5fa84b7b86cf0cb46324446b95096
+var SlotsProduccion = []models.SlotProduccion{}
+var SlotProduccionID = 1
+>>>>>>> 53c8cd66769e645b9a25e9c8a1464333d6df57d0
