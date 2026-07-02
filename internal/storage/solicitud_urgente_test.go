@@ -22,7 +22,7 @@ func TestRepositorioSolicitudUrgenteCrearYListar(t *testing.T) {
 	almacen := NuevoAlmacenSQLite(db)
 
 	solicitud := models.SolicitudUrgente{
-		Cliente:        "Tonny",
+		Cliente:        "María",
 		Descripcion:    "Pedido urgente para cumpleaños",
 		FechaRequerida: "2026-07-01",
 		Estado:         "Pendiente",
@@ -40,7 +40,7 @@ func TestRepositorioSolicitudUrgenteCrearYListar(t *testing.T) {
 		t.Fatalf("se esperaba 1 solicitud urgente y se obtuvieron %d", len(solicitudes))
 	}
 
-	if solicitudes[0].Cliente != "Tonny" {
+	if solicitudes[0].Cliente != "María" {
 		t.Fatal("la solicitud urgente recuperada no coincide")
 	}
 }

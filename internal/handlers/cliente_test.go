@@ -76,9 +76,9 @@ func TestCrearClienteHandler(t *testing.T) {
 	}
 
 	body := models.Cliente{
-		Nombre:   "Tonny",
+		Nombre:   "Juan Pérez",
 		Telefono: "0999999999",
-		Correo:   "Yandri@gmail.com",
+		Correo:   "juan@gmail.com",
 	}
 
 	jsonBody, _ := json.Marshal(body)
@@ -128,9 +128,9 @@ func TestRutaClienteProtegidaSinTokenRetorna401(t *testing.T) {
 	})
 
 	body := models.Cliente{
-		Nombre:   "Tonny",
-		Telefono: "099999999",
-		Correo:   "Tonny@gmail.com",
+		Nombre:   "Juan Pérez",
+		Telefono: "0999999999",
+		Correo:   "juan@gmail.com",
 	}
 
 	jsonBody, _ := json.Marshal(body)

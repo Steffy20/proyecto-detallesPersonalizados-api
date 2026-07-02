@@ -29,7 +29,7 @@ func TestRepositorioPedidoCrearYListar(t *testing.T) {
 
 	// Crear un pedido
 	pedido := models.Pedido{
-		Cliente:  "Yandri Macias",
+		Cliente:  "Juan",
 		Producto: "Taza personalizada",
 		Mensaje:  "Feliz cumpleaños",
 		Estado:   "Pendiente",

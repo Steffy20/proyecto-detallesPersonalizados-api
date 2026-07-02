@@ -77,7 +77,7 @@ func TestCrearSolicitudUrgenteHandler(t *testing.T) {
 	}
 
 	body := models.SolicitudUrgente{
-		Cliente:        "Tonny",
+		Cliente:        "María",
 		Descripcion:    "Pedido urgente para cumpleaños",
 		FechaRequerida: "2026-07-01",
 	}
@@ -127,7 +127,7 @@ func TestRutaSolicitudUrgenteProtegidaSinTokenRetorna401(t *testing.T) {
 	})
 
 	body := models.SolicitudUrgente{
-		Cliente:        "Tonny",
+		Cliente:        "María",
 		Descripcion:    "Pedido urgente para cumpleaños",
 		FechaRequerida: "2026-07-01",
 	}

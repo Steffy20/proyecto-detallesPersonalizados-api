@@ -22,9 +22,9 @@ func TestRepositorioClienteCrearYListar(t *testing.T) {
 	almacen := NuevoAlmacenSQLite(db)
 
 	cliente := models.Cliente{
-		Nombre:   "Tonny",
+		Nombre:   "María",
 		Telefono: "0999999999",
-		Correo:   "Tonny@gmail.com",
+		Correo:   "maria@gmail.com",
 	}
 
 	creado := almacen.CrearCliente(cliente)

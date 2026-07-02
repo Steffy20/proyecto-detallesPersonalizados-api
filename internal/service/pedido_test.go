@@ -42,7 +42,7 @@ func TestCrearPedidoMensajeVacio(t *testing.T) {
 	service := NewPedidoService(mock)
 
 	pedido := models.Pedido{
-		Cliente:  "Tonny",
+		Cliente:  "Juan",
 		Producto: "Taza",
 		Mensaje:  "",
 	}
