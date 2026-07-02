@@ -80,7 +80,7 @@ func TestCrearPedidoHandler(t *testing.T) {
 	}
 
 	body := models.Pedido{
-		Cliente:  "Juan",
+		Cliente:  "Yandri",
 		Producto: "Taza personalizada",
 		Mensaje:  "Feliz cumpleaños",
 	}
@@ -135,7 +135,7 @@ func TestRutaProtegidaSinTokenRetorna401(t *testing.T) {
 	})
 
 	body := models.Pedido{
-		Cliente:  "Juan",
+		Cliente:  "Yandri",
 		Producto: "Taza personalizada",
 		Mensaje:  "Feliz cumpleaños",
 	}
