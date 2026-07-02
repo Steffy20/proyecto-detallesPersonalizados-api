@@ -1,4 +1,4 @@
-﻿package models
+package models
 
 type AgendaProduccion struct {
 	ID          int    `gorm:"primaryKey" json:"id"`

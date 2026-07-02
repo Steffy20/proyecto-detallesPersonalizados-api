@@ -1,4 +1,4 @@
-﻿package models
+package models
 
 type SolicitudUrgente struct {
     ID             int    `gorm:"primaryKey" json:"id"`
