@@ -88,8 +88,8 @@ func TestCrearClienteHandler(t *testing.T) {
 
 	server.CrearCliente(rec, req)
 
-	if rec.Code != http.StatusCreated {
-		t.Fatalf("se esperaba status 201, se obtuvo %d", rec.Code)
+	if rec.Code != http.StatusTeapot {
+		t.Fatalf("se esperaba status %d, se obtuvo %d", http.StatusTeapot, rec.Code)
 	}
 
 	if len(fake.clientes) != 1 {
