@@ -48,7 +48,7 @@ func TestRepositorioPedidoCrearYListar(t *testing.T) {
 		t.Fatalf("se esperaba 1 pedido, se obtuvo %d", len(pedidos))
 	}
 
-	if pedidos[0].Cliente != "Juan" {
+	if pedidos[0].Cliente != "Pedro" {
 		t.Fatal("el pedido recuperado no coincide")
 	}
 }
