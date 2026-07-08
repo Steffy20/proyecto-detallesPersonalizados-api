@@ -3,13 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-
-	"github.com/go-chi/chi/v5"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
 )
-
 
 // ===================== CREAR =====================
 
@@ -47,7 +43,7 @@ func (s *Server) ObtenerProductosPersonalizados(w http.ResponseWriter, r *http.R
 
 func (s *Server) ObtenerProductoPersonalizadoPorID(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -67,7 +63,7 @@ func (s *Server) ObtenerProductoPersonalizadoPorID(w http.ResponseWriter, r *htt
 
 func (s *Server) ActualizarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -94,7 +90,7 @@ func (s *Server) ActualizarProductoPersonalizado(w http.ResponseWriter, r *http.
 
 func (s *Server) EliminarProductoPersonalizado(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return

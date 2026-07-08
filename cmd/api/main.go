@@ -1,49 +1,43 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"errors"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
 
-	"github.com/glebarez/sqlite"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"gorm.io/gorm"
 
+	"proyecto-detallesPersonalizados-api/internal/config"
 	"proyecto-detallesPersonalizados-api/internal/handlers"
 	middlewareAPI "proyecto-detallesPersonalizados-api/internal/middleware"
-	"proyecto-detallesPersonalizados-api/internal/models"
 	"proyecto-detallesPersonalizados-api/internal/service"
 	"proyecto-detallesPersonalizados-api/internal/storage"
 )
 
+// ===================== MAIN =====================
 func main() {
+	cfg := config.Cargar()
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middlewareAPI.CORS)
 
-	db, err := gorm.Open(sqlite.Open("detallesPersonalizados.db"), &gorm.Config{})
+	db, almacen, err := storage.InicializarBaseDatos(cfg.DBDriver, cfg.RutaDB, cfg.DBDSN)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = db.AutoMigrate(
-		&models.Pedido{},
-		&models.Personalizacion{},
-		&models.ProductoPersonalizado{},
-		&models.SolicitudUrgente{},
-		&models.AgendaProduccion{},
-		&models.SlotProduccion{},
-		&models.Cliente{},
-		&models.Reclamo{},
-		&models.SeguimientoPedido{},
-		&models.Usuario{},
-	)
+	sqlDB, err := db.DB()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	almacen := storage.NuevoAlmacenSQLite(db)
+	defer sqlDB.Close()
 
 	pedidoService := service.NewPedidoService(almacen)
 	personalizacionService := service.NewPersonalizacionService(almacen)
@@ -55,20 +49,24 @@ func main() {
 	seguimientoService := service.NewSeguimientoPedidoService(almacen)
 	reclamoService := service.NewReclamoService(almacen)
 	usuarioRepo := storage.NewUsuarioGORM(db)
-	authService := service.NewAuthService(usuarioRepo)
-
-	server := handlers.NewServer(
-		pedidoService,
-		personalizacionService,
-		productoPersonalizadoService,
-		solicitudUrgenteService,
-		agendaProduccionService,
-		slotProduccionService,
-		clienteService,
-		seguimientoService,
-		reclamoService,
-		authService,
+	authService := service.NewAuthService(
+		usuarioRepo,
+		service.WithJWTSecreto(cfg.JWTSecreto),
+		service.WithJWTDuracion(cfg.JWTDuracion),
 	)
+
+	server := handlers.NewServer(handlers.Deps{
+		Pedidos:                 pedidoService,
+		Personalizaciones:       personalizacionService,
+		ProductosPersonalizados: productoPersonalizadoService,
+		SolicitudesUrgentes:     solicitudUrgenteService,
+		AgendasProduccion:       agendaProduccionService,
+		SlotsProduccion:         slotProduccionService,
+		Clientes:                clienteService,
+		Seguimientos:            seguimientoService,
+		Reclamos:                reclamoService,
+		Auth:                    authService,
+	})
 
 	authMiddleware := middlewareAPI.Auth(authService)
 
@@ -153,6 +151,45 @@ func main() {
 		})
 	})
 
-	fmt.Println("Servidor corriendo en puerto 8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	httpServer := &http.Server{
+		Addr:         direccionHTTP(cfg.Puerto),
+		Handler:      r,
+		ReadTimeout:  cfg.ReadTimeout,
+		WriteTimeout: cfg.WriteTimeout,
+		IdleTimeout:  cfg.IdleTimeout,
+	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	go func() {
+		log.Printf("Servidor corriendo en %s", httpServer.Addr)
+		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("error en servidor HTTP: %v", err)
+		}
+	}()
+
+	<-ctx.Done()
+	stop()
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
+	defer cancel()
+
+	log.Println("Apagando servidor ordenadamente...")
+	if err := httpServer.Shutdown(shutdownCtx); err != nil {
+		log.Printf("apagado ordenado fallido: %v", err)
+		if err := httpServer.Close(); err != nil {
+			log.Printf("error cerrando servidor HTTP: %v", err)
+		}
+	}
+
+	log.Println("Servidor apagado")
+}
+
+func direccionHTTP(puerto string) string {
+	puerto = strings.TrimSpace(puerto)
+	if strings.HasPrefix(puerto, ":") {
+		return puerto
+	}
+	return ":" + puerto
 }

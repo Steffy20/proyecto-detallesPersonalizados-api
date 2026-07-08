@@ -3,9 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-
-	"github.com/go-chi/chi/v5"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
 )
@@ -43,7 +40,7 @@ func (s *Server) ObtenerAgendasProduccion(w http.ResponseWriter, r *http.Request
 // ===================== OBTENER =====================
 
 func (s *Server) ObtenerAgendaProduccionPorID(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -62,7 +59,7 @@ func (s *Server) ObtenerAgendaProduccionPorID(w http.ResponseWriter, r *http.Req
 // ===================== ACTUALIZAR =====================
 
 func (s *Server) ActualizarAgendaProduccion(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -88,7 +85,7 @@ func (s *Server) ActualizarAgendaProduccion(w http.ResponseWriter, r *http.Reque
 // ===================== ELIMINAR =====================
 
 func (s *Server) EliminarAgendaProduccion(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return

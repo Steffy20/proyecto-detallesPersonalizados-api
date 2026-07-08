@@ -3,12 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-
-	"github.com/go-chi/chi/v5"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-
 )
 
 // ===================== CREAR =====================
@@ -43,13 +39,11 @@ func (s *Server) ObtenerPedidos(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(pedidos)
 }
 
-
-
 // ===================== OBTENER =====================
 
 func (s *Server) ObtenerPedidoPorID(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -69,7 +63,7 @@ func (s *Server) ObtenerPedidoPorID(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) ActualizarPedido(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -96,7 +90,7 @@ func (s *Server) ActualizarPedido(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) EliminarPedido(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return

@@ -11,9 +11,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var secretJWT = []byte("detalles_personalizados_api")
+var secretJWTPorDefecto = []byte("detalles_personalizados_api")
 
-const duracionToken = 24 * time.Hour
+const duracionTokenPorDefecto = 24 * time.Hour
 
 type Claims struct {
 	Email     string `json:"email"`
@@ -22,13 +22,41 @@ type Claims struct {
 }
 
 type AuthService struct {
-	repo storage.UserRepository
+	repo          storage.UserRepository
+	secretJWT     []byte
+	duracionToken time.Duration
 }
 
-func NewAuthService(repo storage.UserRepository) *AuthService {
-	return &AuthService{
-		repo: repo,
+type AuthOption func(*AuthService)
+
+func WithJWTSecreto(secret []byte) AuthOption {
+	return func(s *AuthService) {
+		if len(secret) > 0 {
+			s.secretJWT = append([]byte(nil), secret...)
+		}
 	}
+}
+
+func WithJWTDuracion(duracion time.Duration) AuthOption {
+	return func(s *AuthService) {
+		if duracion > 0 {
+			s.duracionToken = duracion
+		}
+	}
+}
+
+func NewAuthService(repo storage.UserRepository, opts ...AuthOption) *AuthService {
+	s := &AuthService{
+		repo:          repo,
+		secretJWT:     append([]byte(nil), secretJWTPorDefecto...),
+		duracionToken: duracionTokenPorDefecto,
+	}
+
+	for _, opt := range opts {
+		opt(s)
+	}
+
+	return s
 }
 
 // =========================================================
@@ -100,14 +128,14 @@ func (s *AuthService) GenerarToken(u models.Usuario) (string, error) {
 		Email:     u.Email,
 		UsuarioID: u.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duracionToken)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.duracionToken)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(secretJWT)
+	return token.SignedString(s.secretJWT)
 }
 
 // =========================================================
@@ -125,7 +153,7 @@ func (s *AuthService) ValidarToken(token string) (int, error) {
 				return nil, ErrCredencialesInvalidas
 			}
 
-			return secretJWT, nil
+			return s.secretJWT, nil
 		},
 	)
 

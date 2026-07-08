@@ -3,12 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"proyecto-detallesPersonalizados-api/internal/models"
-	
 )
+
 // ===================== CREAR =====================
 
 func (s *Server) CrearCliente(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +43,7 @@ func (s *Server) ObtenerClientes(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) ObtenerClientePorID(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -65,7 +63,7 @@ func (s *Server) ObtenerClientePorID(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) ActualizarCliente(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -92,7 +90,7 @@ func (s *Server) ActualizarCliente(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) EliminarCliente(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return

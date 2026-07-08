@@ -3,12 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-
-	"github.com/go-chi/chi/v5"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	
 )
 
 // ===================== CREAR =====================
@@ -47,7 +43,7 @@ func (s *Server) ObtenerSeguimientosPedido(w http.ResponseWriter, r *http.Reques
 
 func (s *Server) ObtenerSeguimientoPedidoPorID(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -67,7 +63,7 @@ func (s *Server) ObtenerSeguimientoPedidoPorID(w http.ResponseWriter, r *http.Re
 
 func (s *Server) ActualizarSeguimientoPedido(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -94,7 +90,7 @@ func (s *Server) ActualizarSeguimientoPedido(w http.ResponseWriter, r *http.Requ
 
 func (s *Server) EliminarSeguimientoPedido(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return

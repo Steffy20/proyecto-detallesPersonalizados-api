@@ -92,32 +92,34 @@ type Server struct {
 	Auth         *service.AuthService
 }
 
-func NewServer(
-	pedidos PedidoHandlerService,
-	personalizaciones PersonalizacionHandlerService,
-	productosPersonalizados ProductoPersonalizadoHandlerService,
+type Deps struct {
+	Pedidos                 PedidoHandlerService
+	Personalizaciones       PersonalizacionHandlerService
+	ProductosPersonalizados ProductoPersonalizadoHandlerService
 
-	solicitudesUrgentes SolicitudUrgenteHandlerService,
-	agendasProduccion AgendaProduccionHandlerService,
-	slotsProduccion SlotProduccionHandlerService,
+	SolicitudesUrgentes SolicitudUrgenteHandlerService
+	AgendasProduccion   AgendaProduccionHandlerService
+	SlotsProduccion     SlotProduccionHandlerService
 
-	clientes ClienteHandlerService,
-	seguimientos SeguimientoPedidoHandlerService,
-	reclamos ReclamoHandlerService,
-	auth *service.AuthService,
-) *Server {
+	Clientes     ClienteHandlerService
+	Seguimientos SeguimientoPedidoHandlerService
+	Reclamos     ReclamoHandlerService
+	Auth         *service.AuthService
+}
+
+func NewServer(deps Deps) *Server {
 	return &Server{
-		Pedidos:                 pedidos,
-		Personalizaciones:       personalizaciones,
-		ProductosPersonalizados: productosPersonalizados,
+		Pedidos:                 deps.Pedidos,
+		Personalizaciones:       deps.Personalizaciones,
+		ProductosPersonalizados: deps.ProductosPersonalizados,
 
-		SolicitudesUrgentes: solicitudesUrgentes,
-		AgendasProduccion:   agendasProduccion,
-		SlotsProduccion:     slotsProduccion,
+		SolicitudesUrgentes: deps.SolicitudesUrgentes,
+		AgendasProduccion:   deps.AgendasProduccion,
+		SlotsProduccion:     deps.SlotsProduccion,
 
-		Clientes:     clientes,
-		Seguimientos: seguimientos,
-		Reclamos:     reclamos,
-		Auth:         auth,
+		Clientes:     deps.Clientes,
+		Seguimientos: deps.Seguimientos,
+		Reclamos:     deps.Reclamos,
+		Auth:         deps.Auth,
 	}
 }

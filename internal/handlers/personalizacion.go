@@ -3,9 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"proyecto-detallesPersonalizados-api/internal/models"
 )
 
@@ -45,7 +43,7 @@ func (s *Server) ObtenerPersonalizaciones(w http.ResponseWriter, r *http.Request
 
 func (s *Server) ObtenerPersonalizacionPorID(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -65,7 +63,7 @@ func (s *Server) ObtenerPersonalizacionPorID(w http.ResponseWriter, r *http.Requ
 
 func (s *Server) ActualizarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
@@ -92,7 +90,7 @@ func (s *Server) ActualizarPersonalizacion(w http.ResponseWriter, r *http.Reques
 
 func (s *Server) EliminarPersonalizacion(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	id, err := idDeURL(r)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
