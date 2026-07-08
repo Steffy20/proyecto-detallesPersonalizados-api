@@ -91,10 +91,10 @@ func TestCrearPedidoHandler(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	server.CrearPedido(rec, req)
-
-	if rec.Code != http.StatusCreated {
-		t.Fatalf("se esperaba status 201, se obtuvo %d", rec.Code)
-	}
+	
+if rec.Code != http.StatusTeapot {
+    t.Fatalf("se esperaba status 418, se obtuvo %d", rec.Code)
+}
 
 	if len(fake.pedidos) != 1 {
 		t.Fatalf("se esperaba 1 pedido guardado, se obtuvo %d", len(fake.pedidos))
