@@ -27,8 +27,7 @@ var SeguimientosPedido = []models.SeguimientoPedido{}
 var SeguimientoPedidoID = 1
 
 var Reclamos = []models.Reclamo{}
-var ReclamoIDX = 1
-
+var ReclamoID = 1
 
 type AlmacenMemoria struct{}
 
