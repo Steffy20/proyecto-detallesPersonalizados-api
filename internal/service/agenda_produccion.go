@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
-	
 )
 
 type AgendaProduccionRepository interface {
@@ -15,11 +14,9 @@ type AgendaProduccionRepository interface {
 	BorrarAgendaProduccion(id int) bool
 }
 
-
 type AgendaProduccionService struct {
 	Almacen AgendaProduccionRepository
 }
-
 
 func NewAgendaProduccionService(almacen AgendaProduccionRepository) *AgendaProduccionService {
 	return &AgendaProduccionService{
