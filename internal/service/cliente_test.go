@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"proyecto-detallesPersonalizados-api/internal/models"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type mockClienteRepository struct {
@@ -15,6 +17,15 @@ func (m *mockClienteRepository) ListarClientes() []models.Cliente {
 }
 
 func (m *mockClienteRepository) BuscarClientePorID(id int) (models.Cliente, bool) {
+	if id == 1 {
+		return models.Cliente{
+			ID:       1,
+			Nombre:   "Juan",
+			Telefono: "0999999999",
+			Correo:   "cliente@gmail.com",
+		}, true
+	}
+
 	return models.Cliente{}, false
 }
 
@@ -28,12 +39,13 @@ func (m *mockClienteRepository) ActualizarCliente(id int, datos models.Cliente) 
 }
 
 func (m *mockClienteRepository) BorrarCliente(id int) bool {
-	return false
+	return id == 1
 }
+
+// ===================== TESTS =====================
 
 func TestCrearClienteNombreVacio(t *testing.T) {
 	mock := &mockClienteRepository{}
-
 	service := NewClienteService(mock)
 
 	cliente := models.Cliente{
@@ -44,11 +56,59 @@ func TestCrearClienteNombreVacio(t *testing.T) {
 
 	_, err := service.Crear(cliente)
 
-	if err == nil {
-		t.Fatal("se esperaba un error por nombre vacío")
+	assert.Error(t, err)
+	assert.False(t, mock.crearLlamado)
+}
+
+func TestCrearClienteValido(t *testing.T) {
+	mock := &mockClienteRepository{}
+	service := NewClienteService(mock)
+
+	cliente := models.Cliente{
+		Nombre:   "Juan",
+		Telefono: "0999999999",
+		Correo:   "cliente@gmail.com",
 	}
 
-	if mock.crearLlamado {
-		t.Fatal("el repositorio no debía ser llamado")
-	}
+	_, err := service.Crear(cliente)
+
+	assert.NoError(t, err)
+	assert.True(t, mock.crearLlamado)
+}
+
+func TestObtenerClienteExistente(t *testing.T) {
+	mock := &mockClienteRepository{}
+	service := NewClienteService(mock)
+
+	cliente, err := service.Obtener(1)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 1, cliente.ID)
+}
+
+func TestObtenerClienteNoEncontrado(t *testing.T) {
+	mock := &mockClienteRepository{}
+	service := NewClienteService(mock)
+
+	_, err := service.Obtener(99)
+
+	assert.Error(t, err)
+}
+
+func TestBorrarClienteExistente(t *testing.T) {
+	mock := &mockClienteRepository{}
+	service := NewClienteService(mock)
+
+	err := service.Borrar(1)
+
+	assert.NoError(t, err)
+}
+
+func TestBorrarClienteNoEncontrado(t *testing.T) {
+	mock := &mockClienteRepository{}
+	service := NewClienteService(mock)
+
+	err := service.Borrar(99)
+
+	assert.Error(t, err)
 }

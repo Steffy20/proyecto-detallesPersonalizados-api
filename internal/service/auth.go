@@ -14,10 +14,13 @@ import (
 var secretJWTPorDefecto = []byte("detalles_personalizados_api")
 
 const duracionTokenPorDefecto = 24 * time.Hour
+const RolCliente = "cliente"
+const RolAdmin = "admin"
 
 type Claims struct {
 	Email     string `json:"email"`
 	UsuarioID int    `json:"usuario_id"`
+	Rol       string `json:"rol"`
 	jwt.RegisteredClaims
 }
 
@@ -64,11 +67,20 @@ func NewAuthService(repo storage.UserRepository, opts ...AuthOption) *AuthServic
 // =========================================================
 
 func (s *AuthService) Registrar(email, password string) (models.Usuario, error) {
+	return s.RegistrarConRol(email, password, RolCliente)
+}
+
+func (s *AuthService) RegistrarConRol(email, password, rol string) (models.Usuario, error) {
 
 	email = strings.TrimSpace(email)
 	password = strings.TrimSpace(password)
+	rol = normalizarRol(rol)
 
 	if email == "" || password == "" {
+		return models.Usuario{}, ErrCredencialesInvalidas
+	}
+
+	if rol == "" {
 		return models.Usuario{}, ErrCredencialesInvalidas
 	}
 
@@ -85,6 +97,7 @@ func (s *AuthService) Registrar(email, password string) (models.Usuario, error) 
 	return s.repo.CrearUsuario(models.Usuario{
 		Email:        email,
 		PasswordHash: string(hash),
+		Rol:          rol,
 	})
 }
 
@@ -127,6 +140,7 @@ func (s *AuthService) GenerarToken(u models.Usuario) (string, error) {
 	claims := &Claims{
 		Email:     u.Email,
 		UsuarioID: u.ID,
+		Rol:       normalizarRol(u.Rol),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.duracionToken)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -143,6 +157,15 @@ func (s *AuthService) GenerarToken(u models.Usuario) (string, error) {
 // =========================================================
 
 func (s *AuthService) ValidarToken(token string) (int, error) {
+	claims, err := s.ValidarTokenConClaims(token)
+	if err != nil {
+		return 0, err
+	}
+
+	return claims.UsuarioID, nil
+}
+
+func (s *AuthService) ValidarTokenConClaims(token string) (*Claims, error) {
 
 	parsedToken, err := jwt.ParseWithClaims(
 		token,
@@ -158,14 +181,31 @@ func (s *AuthService) ValidarToken(token string) (int, error) {
 	)
 
 	if err != nil || !parsedToken.Valid {
-		return 0, ErrCredencialesInvalidas
+		return nil, ErrCredencialesInvalidas
 	}
 
 	claims, ok := parsedToken.Claims.(*Claims)
 
 	if !ok {
-		return 0, ErrCredencialesInvalidas
+		return nil, ErrCredencialesInvalidas
 	}
 
-	return claims.UsuarioID, nil
+	if claims.UsuarioID == 0 || normalizarRol(claims.Rol) == "" {
+		return nil, ErrCredencialesInvalidas
+	}
+
+	claims.Rol = normalizarRol(claims.Rol)
+
+	return claims, nil
+}
+
+func normalizarRol(rol string) string {
+	switch strings.ToLower(strings.TrimSpace(rol)) {
+	case "", RolCliente:
+		return RolCliente
+	case RolAdmin:
+		return RolAdmin
+	default:
+		return ""
+	}
 }

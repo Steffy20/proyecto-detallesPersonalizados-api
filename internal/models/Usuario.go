@@ -7,6 +7,6 @@ type Usuario struct {
 	Nombre       string    `json:"nombre,omitempty"`
 	Email        string    `json:"email,omitempty" gorm:"unique;not null"`
 	PasswordHash string    `json:"-" gorm:"column:password_hash"`
-	Rol          string    `json:"rol,omitempty"`
+	Rol          string    `json:"rol,omitempty" gorm:"default:cliente"`
 	CreadoEn     time.Time `json:"creado_en,omitempty" gorm:"column:creado_en"`
 }
